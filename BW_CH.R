@@ -55,7 +55,7 @@ fwd_bwd_CH <- function(dat, q_func, bin, initP, tP){
 
 
 test <- fwd_bwd_CH(dat, q_func, bin, initP, tP)
-apply(test[[1]]*test[[2]], 1, sum)
+apply(test[[1]]*test[[2]], 1, sum) ## should be 1
 
 
 
