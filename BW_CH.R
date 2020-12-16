@@ -156,7 +156,7 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
               iteration = ite))
 }
 
-
+## a quick example
 result <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
 
 
