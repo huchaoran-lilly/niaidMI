@@ -119,6 +119,7 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
         xi[, , j] <- cartA
       }
       
+      # store result
       cart_updt_initP[i, ] <- gamma[1, ]
       
       for (s in 1:n_bin) {
