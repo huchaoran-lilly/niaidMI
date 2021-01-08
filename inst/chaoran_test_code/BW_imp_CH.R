@@ -117,7 +117,7 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
     if (message) print(paste0("Iteration ", ite, ": log-likelihood is ", llk, "."))
     
     ## check whether stop
-    if (abs(llk_last - llk) == tol_llk & ite >= 2) break
+    if (abs(llk_last - llk) <= tol_llk & ite >= 2) break
     
     ## update llk and iteration number
     llk_last <- llk
