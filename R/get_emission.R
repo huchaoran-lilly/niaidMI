@@ -3,32 +3,71 @@
 #' @seealso \code{\link{impute}}
 #' @export
 #' @param wide Data in wide format (i.e., each day is a column). 
-#' Data must be in extended representation. Here as state of (9) is missing and possibly dead, and 
-#' a state of (10) is missing but not dead
 #' @param days Names of the columns that contain the score for each day.
 #' @details
-#' Documentation of how this matrix is created is described in the vignette.
+#' States for each patient/day in 'wide' may be the following: 
+#' \itemize{
+#'  \item{Not missing:}{An integer from 1 to 8.}
+#'  \item{Missing:}{NA}
+#'  \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
+#' }
+#' 
 #' @return 
 #' Creates a 3 dimensional array that is "number of patients" x "number
-#' of days" x "8 NIAID stats." 
+#' of days" x "8 NIAID stats." This array contains only 1 or 0 for each entry indicating 
+#' if the state for a given day and individual is consistent with the data.
 #' 
 #' @examples
 #' 
 #' 
 
 
-get_emission <-
-function(wide, days) {
-  #Setup Emission Values
-  #  + 9 is missing and possibly dead 
-  #  + 10 is missing but not dead
-  emmssionNum=cbind(diag(8),rep(1,8),c(rep(1,7),0)) 
-  Em=array(0,c(nrow(wide),length(days),8))
-  for(i in 1:nrow(wide)) {
-    for(j in 1:length(days)){
-      state=unlist(wide[i,days[j]])
-      Em[i,j,]=emmssionNum[,state]
-    }
+get_emission=function(wide,days) {
+  split_list=list()
+  for(nm in days) {
+    col_str=wide[[nm]]
+    splt=sub("[", "", col_str, fixed=TRUE)
+    splt=sub("]", "", splt, fixed=TRUE)
+    splt=strsplit( splt, ",", fixed=TRUE)
+    split_list[[nm]]=mapply(function(x,v) {
+      
+      ret=tryCatch(as.numeric(x), 
+                   warning=function(e) stop(paste("Could not process niad os value:", v,".")))
+      if(any(is.na(ret))) {
+        if(length(ret)>1)
+          stop(paste("Could not process niad os value of:", v,"."))
+        return(c(1,8)) #could be anything
+      } else if(any(ret<1 | ret>8 | round(ret)!=ret)){
+        stop(paste("Niad os value must be integer between 1 and 8. Found value of:", v,"."))
+      } else if(length(ret)>2) {
+        stop(paste("Could not process niad os value of:", v,"."))
+      } else if(length(ret)==2) {
+        if(ret[1]==ret[2])
+          stop(paste("Could not process niad os value of:", v,"."))
+        return(c(min(ret),max(ret)))
+      } else
+        return(ret)
+    }, splt,col_str, SIMPLIFY = FALSE)
   }
+  
+  valuelist=unique(do.call(c, split_list))
+  
+  tochar=function(x) sapply(x, function(x) paste(x,collapse="_"))
+  
+  emmssionNum=lapply(valuelist, function(x) {
+    ret=rep(0,8)
+    if(length(x)==1) {
+      ret[x]=1
+    } else {
+      ret[x[1]:x[2]]=1
+    }
+    return(ret)
+  })
+  names(emmssionNum)=tochar(valuelist)
+  Em=array(0,c(nrow(wide),length(days),8))
+  Emlst=lapply(split_list, function(x) do.call(rbind,emmssionNum[tochar(x)]))
+  for(i in 1:length(days))
+    Em[,i,]=Emlst[[i]]
   return(Em)
 }
+
