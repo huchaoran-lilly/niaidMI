@@ -1,7 +1,7 @@
 .baum_welsh <-
 function(Pri, s, Tran, Em, bin, n_bin=max(bin),
                     n=dim(Em)[1], n_day=dim(Em)[2], n_states=8, n_strata=max(s),
-                    tol=1e-6) {
+                    tol=1e-6, maxiter=200) {
   
   logLike_new <- 0
   logLike_old <- 1
@@ -10,14 +10,15 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
   while((abs(logLike_new-logLike_old)/logLike_old) > tol) {
     nit=nit+1
     
-    if(nit>30) {
+    if(nit>maxiter) {
+      stop("maximum number of iterations reached.")
       # hist(rowSums(log(fb$c)))
       # pos=which(apply(log(fb$c),1, min)< -6.1)
       # 
       # log(fb$c)[pos[2],]
-      cat(logLike_new-logLike_old,  logLike_new,
-          (abs(logLike_new-logLike_old)/logLike_old),"\n")
-      browser()
+      # cat(logLike_new-logLike_old,  logLike_new,
+      #     (abs(logLike_new-logLike_old)/logLike_old),"\n")
+      # browser()
     }
 
     logLike_old <- logLike_new
@@ -50,6 +51,7 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
     for(b in n_bin) {
       tmp=tran_w[b,,]
       tmp=tmp/rowSums(tmp)
+      tmp[8,]=c(0,0,0,0, 0,0,0,1)
       Tran[[b]]=tmp
     }
 
