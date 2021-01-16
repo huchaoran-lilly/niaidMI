@@ -6,61 +6,50 @@
 \usage{
 impute(
   wide,
-  bin,
   m,
   by = NULL,
-  baselineStrat = NULL,
   days = paste0("D", 1:28),
+  bin = rep(1, length(days) - 1),
   Em = get_emission(wide, days),
-  wideFormatOut = TRUE,
-  listFormatOut = TRUE,
+  listFormatOut = FALSE,
   tol = 1e-06,
-  silent = FALSE,
-  s = NULL
+  maxiter = 200,
+  silent = FALSE
 )
 }
 \arguments{
-\item{wide}{Data in wide format (i.e., each day is a column). 
-Data must be in extended representation. Here as state of (9) is missing and possibly dead, and 
-a state of (10) is missing but not dead.}
-
-\item{bin}{The assigned bin for each transition. Must be a numeric vector of length=(1-length(days)).}
+\item{wide}{Data in wide format (i.e., each day is a column).}
 
 \item{m}{Number of imputations.}
 
 \item{by}{Character vector with column names. Data will be broken up and imputed separately for every combination of values for those columns in the data.}
 
-\item{baselineStrat}{Character vector with column names. Baseline proportion estimated separately for each strata.}
+\item{days}{Names of the columns that contain the score for each day. Columns should be in sequential order.}
 
-\item{days}{Names of the columns that contain the score for each day.}
+\item{bin}{The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.}
 
 \item{Em}{Emission probabilities. Generally the default should not be changed.}
-
-\item{wideFormatOut}{Return in wide format (TRUE) or long format (FALSE)}
 
 \item{listFormatOut}{Return each imputed dataset in a list or combine into a single dataset.}
 
 \item{tol}{tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.}
 
 \item{silent}{Allows silencing some messages.}
-
-\item{s}{For internal use only.}
 }
 \value{
-A list object with the following components
-\describe{
-  \item{fit}{Contains results of the primary model fit}
-  \item{boot}{Contains relults from the bootstrap model fit.}
-  \item{bin}{The input.}
-  \item{days}{Formatted dataset.}
-  \item{Em}{Attempted target.}
-}
+If listFormatOut = TRUE, then a list will be returned with each element being an imputed data set.
+If listFormatOut = FALSE, then a single data.frame will be returned where IMP_ID column is created.
 }
 \description{
 Imputes NIAID OS data using a hidden markov model.
 }
 \details{
-
+States for each patient/day in 'wide' may be the following: 
+\itemize{
+ \item{Not missing:}{An integer from 1 to 8.}
+ \item{Missing:}{NA}
+ \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
+}
 }
 \seealso{
 \code{\link{bootstrap_param_est}}

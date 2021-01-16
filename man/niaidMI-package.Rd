@@ -4,9 +4,6 @@
 \name{niaidMI-package}
 \alias{niaidMI-package}
 \title{niaid_mi: multiple imputation of the niad score using a hidden markov model.}
-\description{
-niaid_mi: multiple imputation of the niad score using a hidden markov model.
-}
 \author{
 \itemize{
   \item *maintainer, author* Nathan Morris \email{morris_nathan@lilly.com}

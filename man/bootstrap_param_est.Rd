@@ -6,29 +6,27 @@
 \usage{
 bootstrap_param_est(
   wide,
-  s,
-  bin,
   b,
   days = paste0("D", 1:28),
+  bin = rep(1, length(days) - 1),
   Em = get_emission(wide, days),
   tol = 1e-06,
+  maxiter = 200,
   silent = FALSE
 )
 }
 \arguments{
-\item{wide}{Data in wide format (i.e., each day is a column). 
-Data must be in extended representation. Here as state of (9) is missing and possibly dead, and 
-a state of (10) is missing but not dead}
-
-\item{s}{Numeric vecor representing the assigned strata for each patient as a number.}
-
-\item{bin}{The assigned bin for each transition. Must be a numeric vector of length=(1-length(days)).}
+\item{wide}{Data in wide format (i.e., each day is a column). See details.}
 
 \item{days}{Names of the columns that contain the score for each day.}
+
+\item{bin}{he assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.}
 
 \item{Em}{Emission probabilities.}
 
 \item{tol}{tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.}
+
+\item{maxiter}{maximum iterations before stopping the EM algorithm.}
 
 \item{silent}{Allows silencing some messages.}
 }
@@ -46,7 +44,12 @@ A list object with the following components
 Fits a hidden markov model then bootstraps the data and refits the model.
 }
 \details{
-
+States for each patient/day in 'wide' may be the following: 
+\itemize{
+ \item{Not missing:}{An integer from 1 to 8.}
+ \item{Missing:}{NA}
+ \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
+}
 }
 \seealso{
 \code{\link{tweights}}

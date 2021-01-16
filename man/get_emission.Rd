@@ -7,21 +7,25 @@
 get_emission(wide, days)
 }
 \arguments{
-\item{wide}{Data in wide format (i.e., each day is a column). 
-Data must be in extended representation. Here as state of (9) is missing and possibly dead, and 
-a state of (10) is missing but not dead}
+\item{wide}{Data in wide format (i.e., each day is a column).}
 
 \item{days}{Names of the columns that contain the score for each day.}
 }
 \value{
 Creates a 3 dimensional array that is "number of patients" x "number
-of days" x "8 NIAID stats."
+of days" x "8 NIAID stats." This array contains only 1 or 0 for each entry indicating 
+if the state for a given day and individual is consistent with the data.
 }
 \description{
 Creates Emission probabilities from data
 }
 \details{
-Documentation of how this matrix is created is described in the vignette.
+States for each patient/day in 'wide' may be the following: 
+\itemize{
+ \item{Not missing:}{An integer from 1 to 8.}
+ \item{Missing:}{NA}
+ \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
+}
 }
 \examples{
 
