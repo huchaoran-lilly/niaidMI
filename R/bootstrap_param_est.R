@@ -2,16 +2,20 @@
 #' @description Fits a hidden markov model then bootstraps the data and refits the model.
 #' @seealso \code{\link{tweights}}
 #' @export
-#' @param wide Data in wide format (i.e., each day is a column). 
-#' Data must be in extended representation. Here as state of (9) is missing and possibly dead, and 
-#' a state of (10) is missing but not dead
-#' @param s Numeric vecor representing the assigned strata for each patient as a number.
-#' @param bin The assigned bin for each transition. Must be a numeric vector of length=(1-length(days)).
+#' @param wide Data in wide format (i.e., each day is a column). See details.
+#' @param bin he assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.
 #' @param days Names of the columns that contain the score for each day.
 #' @param Em Emission probabilities.
 #' @param tol tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.
+#' @param maxiter maximum iterations before stopping the EM algorithm.
 #' @param silent Allows silencing some messages.
 #' @details
+#' States for each patient/day in 'wide' may be the following: 
+#' \itemize{
+#'  \item{Not missing:}{An integer from 1 to 8.}
+#'  \item{Missing:}{NA}
+#'  \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
+#' }
 #' 
 #' @return 
 #' A list object with the following components
@@ -28,9 +32,24 @@
 
 
 bootstrap_param_est <-
-function(wide,  s, bin, b, days=paste0("D",1:28), 
-         Em=get_emission(wide, days), tol=1E-6, silent=FALSE) {
+function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1), 
+         Em=get_emission(wide, days), tol=1E-6, maxiter=200, silent=FALSE) {
 
+  if(!is.numeric(bin))
+    stop("bin must be numeric.")
+  if(!is.vector(bin))
+    stop("bin must be a vector")
+  if(length(bin)!=(length(days)-1))
+    stop("length(bin) must be the same as length(days)-1.")
+  
+  if(!is.numeric(b))
+    stop("b must be numeric.")
+  if(!is.vector(b))
+    stop("b must be a vector")
+  if(length(b)!=1)
+    stop("length(b) must be 1.")
+  if(b<2)
+    stop("b must be >=2.")
   
   M = wide[,days]
   M = as.matrix(do.call(cbind, lapply(M, function(x) {
@@ -38,16 +57,20 @@ function(wide,  s, bin, b, days=paste0("D",1:28),
     x
   })))
   
+  #originally I implemented to stratify baseline. However, not planning to expose this functionality.
+  #the following line sets up for no strata
+  s=rep(1, nrow(wide))
+  
   
   strt=.get_start(M=M,s=s,bin=bin)
   if(!silent) cat("Fiting Model\n")
-  fit=.baum_welsh(Pri=strt$Pri, s=s, Tran=strt$Tran, Em=Em, bin=bin, tol=tol)
+  fit=.baum_welsh(Pri=strt$Pri, s=s, Tran=strt$Tran, Em=Em, bin=bin, tol=tol,  maxiter=maxiter)
   if(!silent) cat("Fiting Bootstrap Samples:\n")
   boot=lapply(1:b, function(i) {
     if(!silent) cat("    b=",i,"\n")
     boot=.bootstrap_dta(Em=Em, M=M, s=s)
     strt=.get_start(M=boot$M,s=boot$s, bin=bin)
-    fit=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=strt$Tran, Em=boot$Em, bin=bin, tol=tol)
+    fit=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=strt$Tran, Em=boot$Em, bin=bin, tol=tol,  maxiter=maxiter)
     return(fit[c("Tran","Pri")])
   })
   
@@ -91,6 +114,9 @@ function(M, pos, const=1E-20) {
     x2=factor(v[-1], levels=1:8)
     x1=factor(v[-length(v)], levels=1:8)
     tbl=table(x1, x2)
+    if(!all(tbl[8,1:7]==c(0,0,0,0,0,0,0)))
+      stop("Data error. Patient transitioned from state 8 (dead) to another state. No resurections allowed in the data.")
+    return(tbl)
   })
   tbltot=tbl[[1]]
   for(i in 2:length(tbl))
@@ -98,7 +124,8 @@ function(M, pos, const=1E-20) {
 
   tranNum=as.matrix(tbltot) + const 
   tranNum=tranNum/rowSums(tranNum)
-
+  tranNum[8,]==c(0,0,0,0,0,0,0,1) #don't apply constant to 8
+  
   return(tranNum)
 
 }
