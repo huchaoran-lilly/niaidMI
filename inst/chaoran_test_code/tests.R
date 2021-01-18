@@ -5,6 +5,7 @@
 ### impute_CH : imputes missing based on estimated process
 ### Check the examples at the bottom of the file for the
 ### explanation of arguments.
+### Note that NM is programmer 1 and CH is programmer 2
 
 #######################################################################################################
 
@@ -102,6 +103,7 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
         cart_updt_tP_deno[[s]][i, ] <- apply(gamma[which(bin == s), ], 2, sum)
       }
     }
+    # browser()
     
     ## update initP and transition prob
     initP <- apply(cart_updt_initP, 2, sum) / n_data
@@ -126,6 +128,7 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
   
   return(list(initial_prob = initP,
               transition_prob = tP,
+              llk=llk,
               iteration = ite))
 }
 
@@ -172,127 +175,85 @@ impute_CH <- function(dataset, q_func, bin, initP, tP){
 }
 
 
-#######################################################################################################
 
 
-
-
-### example 1 (only 1 additional state 9 for missing)
 
 ## q functions: a n_q_func by 8 matrix with (i, j)th
 ## element for q(h^obs=i, h=j)
 q_func <- rbind(diag(8), 1)
 
-## dat: observed NIAID for one patient
-dat <- sample(c(1:7, 9), size = 28, replace = TRUE)
+
+## transition probability: a list with length equals
+## to the number of bins. Each element is a 8*8 matrix.
+tP <- vector('list', length(unique(bin)))
+tP[[1]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+                 c(rep(0, 7), 1))
+tP[[2]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+                 c(rep(0, 7), 1))
+tP[[3]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+                 c(rep(0, 7), 1))
+tP[[4]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+                 c(rep(0, 7), 1))
+start_tP <- tP
+
+
+
+
+
+###############################################################
+#  Sample Data
+###############################################################
+library(niaidMI)
+dataset_NM=sim_data(n=200)
+
+#Reformat dataset from dataset_NM to dataset_CH
+#<<<<--TODO by Chauran---->>>>
+
+dataset_CH
 
 ## bin: a vector with length(dat) - 1 
 bin <- c(rep(1, 6), #(Please not data has 28 days)
          rep(2, 7), rep(3, 7), rep(4, 7))
 
-## initial probability of chain
-initP <- c(rep(1, 7) / 7, 0)
-start_initP <- initP
 
-## transition probability: a list with length equals
-## to the number of bins. Each element is a 8*8 matrix.
-tP <- vector('list', length(unique(bin)))
-tP[[1]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[2]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[3]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[4]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-start_tP <- tP
-
-## test fwd_bwd_CH
-test <- fwd_bwd_CH(dat, q_func, bin, initP, tP)
-apply(test[[1]]*test[[2]], 1, sum) ## should be 1
+#Check Model Fit:
+fit_CH <- BW_CH(dataset_CH, q_func, bin, start_initP, start_tP)
+fit_NM <- bootstrap_param_est(wide=dataset_NM, b=2, bin=bin, tol = 0)[[1]]
 
 
-## dataset: observed NIAID for all patients
-## each row is the record of one patient
-dataset <- matrix(NA, ncol = 28, nrow = 100)
-for (i in 1:100) {
-  dataset[i, ] <- sample(c(1:7, 9), size = 28, replace = TRUE)
-}
-dataset_fmt=dataset
-dataset_fmt[dataset_fmt==9]=NA
-colnames(dataset_fmt)=paste0("D",1:28)
-dataset_fmt=data.frame(dataset_fmt)
+#<<<<--TODO by Chauran turn this into testthat---->>>>
+fit_CH$llk - fit_NM$logLike_new
+
+fit_CH$transition_prob[[1]]-fit_NM$Tran[[1]]
+fit_CH$transition_prob[[2]]-fit_NM$Tran[[2]]
+fit_CH$transition_prob[[3]]-fit_NM$Tran[[3]]
+fit_CH$transition_prob[[4]]-fit_NM$Tran[[4]]
+fit_CH$initial_prob[[4]]-fit_NM$Pri[[1]]
 
 
-## a quick example
-result1 <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
-result2 = bootstrap_param_est(wide=dataset_fmt, b=2, bin=bin, tol = 1e-20)[[1]]
-result1$initial_prob
-result2$Pri
+## Check imputation with no stratification
+set.seed(2021)
+imp_CH=list()
+imp_CH[[1]] <- impute_CH(dataset_CH, q_func, bin, result[[1]], result[[2]]) #todo:Chaoran to replace results with bootstrap results
+imp_CH[[2]] <- impute_CH(dataset_CH, q_func, bin, result[[1]], result[[2]]) #todo:Chaoran to replace results with bootstrap results
 
-result1[[2]]
-result2$Pri
+set.seed(2021)
+imp_NM <- impute(dataset, m=2, listFormatOut = TRUE)
 
-
-
-## quick example
-impData <- impute_CH(dataset, q_func, bin, result[[1]], result[[2]])
+#todo: Chaoran to do test that for same
 
 
-##########################################################################
+## Check imputation with stratification
+set.seed(2021)
+
+#todo: Chaoran to make code for stratified imputation
+# Bootstrap + Estimate + impute each strata separately
+imp_strat_CH=list()
+imp_strat_CH[[1]] <- impute_strat_CH(dataset_CH, q_func, bin, result[[1]], result[[2]])
+imp_strat_CH[[2]] <- impute_strat_CH(dataset_CH, q_func, bin, result[[1]], result[[2]])
 
 
-### example 2 (2 additional states, 9 for missing, 10 for missing not die)
+set.seed(2021)
+imp_strat_NM <- impute(dataset_NM, by="strata", m=2, listFormatOut = TRUE)
 
-## q functions: a n_q_func by 8 matrix with (i, j)th
-## element for q(h^obs=i, h=j)
-q_func <- rbind(diag(8), 1, c(rep(1, 7), 0))
-
-## dat: observed NIAID for one patient
-dat <- sample(c(1:7, 9, 10), size = 28, replace = TRUE)
-
-## bin: a vector with length(dat) - 1
-bin <- c(rep(1, 7), rep(2, 7), rep(3, 7), rep(4, 7))
-
-## initial probability of chain
-initP <- c(rep(1, 7) / 7, 0)
-start_initP <- initP
-
-## transition probability: a list with length equals
-## to the number of bins. Each element is a 8*8 matrix.
-tP <- vector('list', length(unique(bin)))
-tP[[1]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[2]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[3]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[4]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-start_tP <- tP
-
-## test fwd_bwd_CH
-test <- fwd_bwd_CH(dat, q_func, bin, initP, tP)
-apply(test[[1]]*test[[2]], 1, sum) ## should be 1
-
-
-## dataset: observed NIAID for all patients
-## each row is the record of one patient
-dataset <- matrix(NA, ncol = 28, nrow = 100)
-for (i in 1:100) {
-  dataset[i, ] <- sample(c(1:7, 9, 10), size = 28, replace = TRUE)
-}
-
-
-## a quick example
-result <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
-
-## quick example
-impData <- impute_CH(dataset, q_func, bin, result[[1]], result[[2]])
-
-## should be all true
-(dataset %in% c(9, 10)) != (impData == dataset)
-
-##########################################################################
-
-
+#todo: Chaoran to make testthat code for comparing stratified imputation
