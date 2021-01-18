@@ -34,6 +34,8 @@ impute(
 
 \item{tol}{tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.}
 
+\item{maxiter}{maximum iterations before stopping the EM algorithm.}
+
 \item{silent}{Allows silencing some messages.}
 }
 \value{
@@ -50,6 +52,10 @@ States for each patient/day in 'wide' may be the following:
  \item{Missing:}{NA}
  \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
 }
+}
+\examples{
+test <- sim_data(200)
+bs <- impute(wide=test,m=5, by="strata", silent=TRUE)
 }
 \seealso{
 \code{\link{bootstrap_param_est}}

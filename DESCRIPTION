@@ -1,11 +1,11 @@
 Package: niaidMI
-Title: Imputes the NIAID OS scale using a hidden markov model.
+Title: Imputes the NIAID OS scale using a markov model
 Version: 1.0
 Date: 2020-11-23
 Author: Nathan Morris[aut, cre],
   Chaoran Hu [aut]
 Maintainer: Nathan Morris <morris_nathan@lilly.com>
-Description: One paragraph description of what the package does as one or more full sentences.
+Description: Performs multiple imputation of the NIAID OS score by using a Markov model.
 License: GPL (>= 2)
 Depends:
   R (>= 3.5.0)

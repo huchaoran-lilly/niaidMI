@@ -16,3 +16,5 @@
 ^TODO\.org$
 ^cran-comments.md$
 ^README\.md$
+_pkgdown.yml
+appveyor.yml

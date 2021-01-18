@@ -26,10 +26,11 @@ States for each patient/day in 'wide' may be the following:
  \item{Missing:}{NA}
  \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
 }
+Generally the user will not need to call this function directly because it is called by the 'impute' function.
 }
 \examples{
-
-
+test <- sim_data(200)
+Em <- get_emission(wide=test,days=paste0("D",1:28))
 }
 \seealso{
 \code{\link{impute}}

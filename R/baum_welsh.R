@@ -7,7 +7,7 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
   logLike_old <- 1
 
   nit=0
-  while((abs(logLike_new-logLike_old)/logLike_old) > tol) {
+  while((abs(logLike_new-logLike_old)/abs(logLike_old)) > tol) {
     nit=nit+1
     
     if(nit>maxiter) {
@@ -30,7 +30,8 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
 
     
     #Log-Likelihood computation
-    logLike_new <- sum(log(fb$c))
+    fbc=fb$c
+    logLike_new <- sum(log(fbc))
     # cat("     ", logLike_new,"\n")
     
     # if(is.na(logLike_new))
@@ -43,12 +44,12 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
         O1=fb$alpha[i,t,]*Tran[[ bin[t] ]]
         v1=fb$beta[i,t+1,] * Em[i,t+1,]
         tran_w0=col_mult(O1, v1)
-        tran_w[bin[t],,]=tran_w[bin[t],,]+tran_w0/sum(tran_w0)
+        tran_w[bin[t],,]=tran_w[bin[t],,]+tran_w0/fbc[t+1]#sum(tran_w0)
       }
     }
     
     ##Parameters update transition
-    for(b in n_bin) {
+    for(b in 1:n_bin) {
       tmp=tran_w[b,,]
       tmp=tmp/rowSums(tmp)
       tmp[8,]=c(0,0,0,0, 0,0,0,1)
@@ -72,7 +73,7 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
 
 .forward_backward <-
 function(Pri, s, Tran, bin, Em, n=dim(Em)[1], 
-                            n_day=dim(Em)[2], n_states=8, n_bin=length(bin), n_strata=max(s)) {
+                            n_day=dim(Em)[2], n_states=8, n_bin=max(bin), n_strata=max(s)) {
 
   alpha=array(0,c(n, n_day, n_states))
   cm=matrix(0,n, n_day)
