@@ -10,6 +10,7 @@
 #' @param Em Emission probabilities. Generally the default should not be changed.
 #' @param listFormatOut Return each imputed dataset in a list or combine into a single dataset.
 #' @param tol tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.
+#' @param maxiter maximum iterations before stopping the EM algorithm.
 #' @param silent Allows silencing some messages.
 #' @details
 #' States for each patient/day in 'wide' may be the following: 
@@ -24,10 +25,16 @@
 #' 
 #' 
 #' @examples
+#' test <- sim_data(200)
+#' bs <- impute(wide=test,m=5, by="strata", silent=TRUE)
 impute <-
   function(wide, m, by=NULL, days=paste0("D",1:28), bin=rep(1,length(days)-1), 
            Em=get_emission(wide, days),
            listFormatOut=FALSE, tol=1E-6, maxiter=200, silent=FALSE) {
+    
+    if(!is.data.frame(wide))
+      stop("wide must be a data.frame.")
+    
     if(!is.numeric(bin))
       stop("bin must be numeric.")
     if(!is.vector(bin))

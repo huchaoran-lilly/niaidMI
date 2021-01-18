@@ -1,9 +1,10 @@
 #' @title Function bootstrap_param_est
 #' @description Fits a hidden markov model then bootstraps the data and refits the model.
-#' @seealso \code{\link{tweights}}
+#' @seealso \code{\link{impute}}
 #' @export
 #' @param wide Data in wide format (i.e., each day is a column). See details.
-#' @param bin he assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.
+#' @param b Number of bootstrap samples to take.
+#' @param bin The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.
 #' @param days Names of the columns that contain the score for each day.
 #' @param Em Emission probabilities.
 #' @param tol tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.
@@ -16,24 +17,30 @@
 #'  \item{Missing:}{NA}
 #'  \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
 #' }
+#' Generally the user will not need to call this function directly because it is called by the 'impute' function.
 #' 
 #' @return 
-#' A list object with the following components
+#' A list object with the following components:
 #' \describe{
 #'   \item{fit}{Contains results of the primary model fit}
 #'   \item{boot}{Contains relults from the bootstrap model fit.}
 #'   \item{bin}{The input.}
-#'   \item{days}{Formatted dataset.}
-#'   \item{Em}{Attempted target.}
+#'   \item{s}{Ignor. May be used in future.}
+#'   \item{days}{From input.}
+#'   \item{Em}{From input.}
 #' }
 #' 
 #' 
 #' @examples
-
+#' test <- sim_data(200)
+#' bs <- bootstrap_param_est(wide=test,b=2)
 
 bootstrap_param_est <-
 function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1), 
          Em=get_emission(wide, days), tol=1E-6, maxiter=200, silent=FALSE) {
+  
+  if(!is.data.frame(wide))
+    stop("wide must be a data.frame.")
 
   if(!is.numeric(bin))
     stop("bin must be numeric.")
@@ -53,7 +60,8 @@ function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1),
   
   M = wide[,days]
   M = as.matrix(do.call(cbind, lapply(M, function(x) {
-    x[x>8]=NA
+    x=suppressWarnings(as.numeric(x))
+    x[x<1 | x>8]=NA
     x
   })))
   
@@ -124,7 +132,7 @@ function(M, pos, const=1E-20) {
 
   tranNum=as.matrix(tbltot) + const 
   tranNum=tranNum/rowSums(tranNum)
-  tranNum[8,]==c(0,0,0,0,0,0,0,1) #don't apply constant to 8
+  tranNum[8,]=c(0,0,0,0,0,0,0,1) #don't apply constant to 8
   
   return(tranNum)
 
