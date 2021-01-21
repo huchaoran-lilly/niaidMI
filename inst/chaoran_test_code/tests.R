@@ -238,7 +238,7 @@ imp_CH[[1]] <- impute_CH(dataset_CH, q_func, bin, result[[1]], result[[2]]) #tod
 imp_CH[[2]] <- impute_CH(dataset_CH, q_func, bin, result[[1]], result[[2]]) #todo:Chaoran to replace results with bootstrap results
 
 set.seed(2021)
-imp_NM <- impute(dataset, m=2, listFormatOut = TRUE)
+imp_NM <- impute(dataset_NM, m=2, listFormatOut = TRUE)
 
 #todo: Chaoran to do test that for same
 
