@@ -60,8 +60,8 @@ function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1),
   
   M = wide[,days]
   M = as.matrix(do.call(cbind, lapply(M, function(x) {
-    x=suppressWarnings(as.numeric(x))
-    x[x<1 | x>8]=NA
+    x=suppressWarnings(as.numeric(as.character(x)))
+    # x[x<1 | x>8]=NA
     x
   })))
   
