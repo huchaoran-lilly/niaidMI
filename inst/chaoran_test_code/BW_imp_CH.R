@@ -3,6 +3,7 @@
 ### BW_CH     : estimates initial prob and transition prob
 ###             by Baum Welch algorithm
 ### impute_CH : imputes missing based on estimated process
+### NM2CH     : transfer data from NM format to CH format
 ### Check the examples at the bottom of the file for the
 ### explanation of arguments.
 
@@ -172,127 +173,127 @@ impute_CH <- function(dataset, q_func, bin, initP, tP){
 }
 
 
-#######################################################################################################
+#####################################################################################################
+#
+#
+#
+#
+# ### example 1 (only 1 additional state 9 for missing)
+# 
+# ## q functions: a n_q_func by 8 matrix with (i, j)th
+# ## element for q(h^obs=i, h=j)
+# q_func <- rbind(diag(8), 1)
+# 
+# ## dat: observed NIAID for one patient
+# dat <- sample(c(1:7, 9), size = 28, replace = TRUE)
+# 
+# ## bin: a vector with length(dat) - 1
+# bin <- c(rep(1, 6), #(Please not data has 28 days)
+#          rep(2, 7), rep(3, 7), rep(4, 7))
+# 
+# ## initial probability of chain
+# initP <- c(rep(1, 7) / 7, 0)
+# start_initP <- initP
+# 
+# ## transition probability: a list with length equals
+# ## to the number of bins. Each element is a 8*8 matrix.
+# tP <- vector('list', length(unique(bin)))
+# tP[[1]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+#                  c(rep(0, 7), 1))
+# tP[[2]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+#                  c(rep(0, 7), 1))
+# tP[[3]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+#                  c(rep(0, 7), 1))
+# tP[[4]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+#                  c(rep(0, 7), 1))
+# start_tP <- tP
+# 
+# ## test fwd_bwd_CH
+# test <- fwd_bwd_CH(dat, q_func, bin, initP, tP)
+# apply(test[[1]]*test[[2]], 1, sum) ## should be 1
+# 
+# 
+# ## dataset: observed NIAID for all patients
+# ## each row is the record of one patient
+# dataset <- matrix(NA, ncol = 28, nrow = 100)
+# for (i in 1:100) {
+#   dataset[i, ] <- sample(c(1:7, 9), size = 28, replace = TRUE)
+# }
+# dataset_fmt=dataset
+# dataset_fmt[dataset_fmt==9]=NA
+# colnames(dataset_fmt)=paste0("D",1:28)
+# dataset_fmt=data.frame(dataset_fmt)
+# 
+# 
+# ## a quick example
+# result1 <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
+# result2 = bootstrap_param_est(wide=dataset_fmt, b=2, bin=bin, tol = 1e-20)[[1]]
+# result1$initial_prob
+# result2$Pri
+# 
+# result1[[2]]
+# result2$Pri
+# 
+# 
+# 
+# ## quick example
+# impData <- impute_CH(dataset, q_func, bin, result[[1]], result[[2]])
 
 
-
-
-### example 1 (only 1 additional state 9 for missing)
-
-## q functions: a n_q_func by 8 matrix with (i, j)th
-## element for q(h^obs=i, h=j)
-q_func <- rbind(diag(8), 1)
-
-## dat: observed NIAID for one patient
-dat <- sample(c(1:7, 9), size = 28, replace = TRUE)
-
-## bin: a vector with length(dat) - 1 
-bin <- c(rep(1, 6), #(Please not data has 28 days)
-         rep(2, 7), rep(3, 7), rep(4, 7))
-
-## initial probability of chain
-initP <- c(rep(1, 7) / 7, 0)
-start_initP <- initP
-
-## transition probability: a list with length equals
-## to the number of bins. Each element is a 8*8 matrix.
-tP <- vector('list', length(unique(bin)))
-tP[[1]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[2]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[3]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[4]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-start_tP <- tP
-
-## test fwd_bwd_CH
-test <- fwd_bwd_CH(dat, q_func, bin, initP, tP)
-apply(test[[1]]*test[[2]], 1, sum) ## should be 1
-
-
-## dataset: observed NIAID for all patients
-## each row is the record of one patient
-dataset <- matrix(NA, ncol = 28, nrow = 100)
-for (i in 1:100) {
-  dataset[i, ] <- sample(c(1:7, 9), size = 28, replace = TRUE)
-}
-dataset_fmt=dataset
-dataset_fmt[dataset_fmt==9]=NA
-colnames(dataset_fmt)=paste0("D",1:28)
-dataset_fmt=data.frame(dataset_fmt)
-
-
-## a quick example
-result1 <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
-result2 = bootstrap_param_est(wide=dataset_fmt, b=2, bin=bin, tol = 1e-20)[[1]]
-result1$initial_prob
-result2$Pri
-
-result1[[2]]
-result2$Pri
-
-
-
-## quick example
-impData <- impute_CH(dataset, q_func, bin, result[[1]], result[[2]])
-
-
-##########################################################################
-
-
-### example 2 (2 additional states, 9 for missing, 10 for missing not die)
-
-## q functions: a n_q_func by 8 matrix with (i, j)th
-## element for q(h^obs=i, h=j)
-q_func <- rbind(diag(8), 1, c(rep(1, 7), 0))
-
-## dat: observed NIAID for one patient
-dat <- sample(c(1:7, 9, 10), size = 28, replace = TRUE)
-
-## bin: a vector with length(dat) - 1
-bin <- c(rep(1, 7), rep(2, 7), rep(3, 7), rep(4, 7))
-
-## initial probability of chain
-initP <- c(rep(1, 7) / 7, 0)
-start_initP <- initP
-
-## transition probability: a list with length equals
-## to the number of bins. Each element is a 8*8 matrix.
-tP <- vector('list', length(unique(bin)))
-tP[[1]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[2]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[3]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-tP[[4]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
-                 c(rep(0, 7), 1))
-start_tP <- tP
-
-## test fwd_bwd_CH
-test <- fwd_bwd_CH(dat, q_func, bin, initP, tP)
-apply(test[[1]]*test[[2]], 1, sum) ## should be 1
-
-
-## dataset: observed NIAID for all patients
-## each row is the record of one patient
-dataset <- matrix(NA, ncol = 28, nrow = 100)
-for (i in 1:100) {
-  dataset[i, ] <- sample(c(1:7, 9, 10), size = 28, replace = TRUE)
-}
-
-
-## a quick example
-result <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
-
-## quick example
-impData <- impute_CH(dataset, q_func, bin, result[[1]], result[[2]])
-
-## should be all true
-(dataset %in% c(9, 10)) != (impData == dataset)
-
-##########################################################################
+# ##########################################################################
+# 
+# 
+# ### example 2 (2 additional states, 9 for missing, 10 for missing not die)
+# 
+# ## q functions: a n_q_func by 8 matrix with (i, j)th
+# ## element for q(h^obs=i, h=j)
+# q_func <- rbind(diag(8), 1, c(rep(1, 7), 0))
+# 
+# ## dat: observed NIAID for one patient
+# dat <- sample(c(1:7, 9, 10), size = 28, replace = TRUE)
+# 
+# ## bin: a vector with length(dat) - 1
+# bin <- c(rep(1, 7), rep(2, 7), rep(3, 7), rep(4, 7))
+# 
+# ## initial probability of chain
+# initP <- c(rep(1, 7) / 7, 0)
+# start_initP <- initP
+# 
+# ## transition probability: a list with length equals
+# ## to the number of bins. Each element is a 8*8 matrix.
+# tP <- vector('list', length(unique(bin)))
+# tP[[1]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+#                  c(rep(0, 7), 1))
+# tP[[2]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+#                  c(rep(0, 7), 1))
+# tP[[3]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+#                  c(rep(0, 7), 1))
+# tP[[4]] <- rbind(matrix(1/8, nrow = 7, ncol = 8),
+#                  c(rep(0, 7), 1))
+# start_tP <- tP
+# 
+# ## test fwd_bwd_CH
+# test <- fwd_bwd_CH(dat, q_func, bin, initP, tP)
+# apply(test[[1]]*test[[2]], 1, sum) ## should be 1
+# 
+# 
+# ## dataset: observed NIAID for all patients
+# ## each row is the record of one patient
+# dataset <- matrix(NA, ncol = 28, nrow = 100)
+# for (i in 1:100) {
+#   dataset[i, ] <- sample(c(1:7, 9, 10), size = 28, replace = TRUE)
+# }
+# 
+# 
+# ## a quick example
+# result <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
+# 
+# ## quick example
+# impData <- impute_CH(dataset, q_func, bin, result[[1]], result[[2]])
+# 
+# ## should be all true
+# (dataset %in% c(9, 10)) != (impData == dataset)
+# 
+# ##########################################################################
 
 
