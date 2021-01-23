@@ -2,8 +2,11 @@
 ### fwd_bwd_CH: computes normalized forward/backward variables
 ### BW_CH     : estimates initial prob and transition prob
 ###             by Baum Welch algorithm
-### impute_CH : imputes missing based on estimated process
+### impute_CH : imputes missing based on Markov chain (basic working block)
+### imputeBS_CH:  imputes missing based on Markov chain and bootstrap
+###               allowing strata imputation
 ### NM2CH     : transfer data from NM format to CH format
+### get_start : get start value for BW algorithm according to NM's algorithm
 ### Check the examples at the bottom of the file for the
 ### explanation of arguments.
 
@@ -127,7 +130,8 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
   
   return(list(initial_prob = initP,
               transition_prob = tP,
-              iteration = ite))
+              iteration = ite,
+              llk = llk))
 }
 
 
@@ -173,7 +177,168 @@ impute_CH <- function(dataset, q_func, bin, initP, tP){
 }
 
 
+
 #####################################################################################################
+
+## no strata
+enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
+                            tol_llk = 0) { #m: num of bootstrap
+  
+  fitMC <- BW_CH(data, q_func, bin, start_initP, start_tP, tol_llk = tol_llk, message = FALSE)
+  
+  result <- vector("list", m)
+  cart <- result
+  for (i in 1:m) {
+    id <- sample(seq_len(nrow(data)), size = nrow(data), replace = TRUE)
+    cart[[i]] <- data[id, ]
+  }
+  
+  for (i in 1:m) {
+    result[[i]] <- impute_CH(cart[[i]], q_func, bin, fitMC[[1]], fitMC[[2]])
+  }
+  result
+}
+
+
+### Imputation function with bootstrap and Markov Chain model
+## The procedure contains three steps: 1. fit Markov Chain with original
+## dataset; 2. get bootstrap datasets from original dataset;
+## 3. impute each bootstrap dataset separately with fitted Markov Chain.
+## param:
+##   data:     matrix contains original data. If imputation is not processed
+##             by strata, then it should not contains strata column.
+##   q_func:   matrix with 0-1 specify q function.
+##   bin:      vector inidcates bins cross time.
+##   start_initP: start value of initial probability for BW algorithm to fit Markov chain.
+##   start_tP: start value of transition probability for BW algorithm to fit Markov chain.
+##   m:        int, number of imputations.
+##   by:       int or char, indicates which column in data is strata.
+##   tol_llk:  num, indicates the tolerance of BW algorithm.
+## value:
+##   a list with length m. Each component is one imputation.
+
+## with strata
+imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m, by = NULL, tol_llk = 0) {
+  if (is.null(by)) {
+    result <- enc_imputeBS_CH(data, q_func, bin, start_initP, start_tP, m, tol_llk = 0)
+    return(result)
+  }
+  
+  result <- vector("list", m)
+  
+  by <- data[, by]
+  unq_by <- unique(by)
+  databy <- vector("list", length(unique(by)))
+  for (i in seq_len(length(unique(by)))) {
+    databy[[i]] <- data[by == unq_by[i], -1]
+    cart <- enc_imputeBS_CH(databy[[i]], q_func, bin, start_initP, start_tP, m, tol_llk = 0)
+    for (j in 1:m) {
+      result[[j]] <- rbind(result[[j]], cbind(unq_by[i], cart[[j]]))
+    }
+  }
+  
+  result
+}
+
+
+#####################################################################################################
+
+
+## 1-8 for 8 niaid score; 9 for NA; 10- for other
+NM2CH_data <- function(data, days=paste0("D",1:28), strata = "strata") {
+  ## 1-8 for 8 niaid score; 9 for NA; 10- for other
+  dat <- data[, days]
+  
+  
+  # get different states
+  unq_state <- c()
+  for (i in seq_len(ncol(dat))) {
+    unq_state <- c(unique(as.character(dat[, i])), unq_state)
+  }
+  unq_state <- unique(unq_state)
+  unq_state <- unq_state[!unq_state %in% as.character(1:8) & !is.na(unq_state)]
+  unq_state_num <- seq_len(length(unq_state)) + 9
+  
+  
+  # get q function
+  q_func <- matrix(0, ncol = 8, nrow = length(unq_state) + 9)
+  q_func[1:8, 1:8] <- diag(8)
+  q_func[9, ] <- 1
+  for (i in seq_len(length(unq_state))) {
+    bg <- substr(unq_state[i], 2, 2)
+    ed <- substr(unq_state[i], 4, 4)
+    q_func[i + 9, seq(bg, ed)] <- 1
+  }
+  
+  
+  # get data
+  tdata <- matrix(NA, ncol = length(days), nrow = nrow(data))
+  for (i in seq_len(ncol(dat))) {
+    for (j in seq_len(nrow(dat))) {
+      
+      cart_chr <- as.character(dat[j, i])
+      if (cart_chr %in% as.character(1:8)) {
+        tdata[j, i] <- as.numeric(cart_chr)
+      } else {
+        if (is.na(cart_chr)) {
+          tdata[j, i] <- 9
+        } else {
+          tdata[j, i] <- unq_state_num[which(unq_state == cart_chr)]
+        }
+      }
+    }
+  }
+  
+  strt <- as.numeric(data[, strata])
+  
+  list(cbind(strt, tdata), q_func,
+       cbind(unq_state, unq_state_num))
+  
+}
+
+
+
+# ####################################################################################################
+
+## get start value according to Nathan's code
+get_start <- function(data, bin) {
+  
+  M = t(rbind(apply(data, 1, function(x) {
+    x[x > 8] = NA
+    x
+  })))
+  
+  #originally I implemented to stratify baseline. However, not planning to expose this functionality.
+  #the following line sets up for no strata
+  s=rep(1, nrow(data))
+  
+  
+  strt=niaidMI:::.get_start(M=M,s=s,bin=bin)
+  
+  list(strt$Tran, strt$Pri[[1]])
+}
+
+
+################# EXAMPLE START HERE #################################################################
+# ####################################################################################################
+# 
+# 
+# NMdata <- niaidMI::sim_data(n=200)
+# CHdata <- NM2CH_data(NMdata)
+# 
+# bin <- c(rep(1, 6), #(Please note data has 28 days)
+#          rep(2, 7), rep(3, 7), rep(4, 7))
+# 
+# start_BW <- get_start(CHdata[[1]][, -1], bin)
+# start_initP <- start_BW[[2]]
+# start_tP <- start_BW[[1]]
+# 
+# BW_CH(CHdata[[1]][, -1], CHdata[[2]], bin, start_initP, start_tP)
+# testimp <- imputeBS_CH(CHdata[[1]], CHdata[[2]], bin, start_initP, start_tP, m = 3, by = 1)
+#
+#
+# 
+# ####################################################################################################
 #
 #
 #
@@ -219,26 +384,25 @@ impute_CH <- function(dataset, q_func, bin, initP, tP){
 # for (i in 1:100) {
 #   dataset[i, ] <- sample(c(1:7, 9), size = 28, replace = TRUE)
 # }
-# dataset_fmt=dataset
-# dataset_fmt[dataset_fmt==9]=NA
-# colnames(dataset_fmt)=paste0("D",1:28)
-# dataset_fmt=data.frame(dataset_fmt)
+# # dataset_fmt=dataset
+# # dataset_fmt[dataset_fmt==9]=NA
+# # colnames(dataset_fmt)=paste0("D",1:28)
+# # dataset_fmt=data.frame(dataset_fmt)
 # 
 # 
 # ## a quick example
 # result1 <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
-# result2 = bootstrap_param_est(wide=dataset_fmt, b=2, bin=bin, tol = 1e-20)[[1]]
-# result1$initial_prob
-# result2$Pri
-# 
-# result1[[2]]
-# result2$Pri
+# # result2 = bootstrap_param_est(wide=dataset_fmt, b=2, bin=bin, tol = 1e-20)[[1]]
+# # result1$initial_prob
+# # result2$Pri
+# # 
+# # result1[[2]]
+# # result2$Pri
 # 
 # 
 # 
 # ## quick example
-# impData <- impute_CH(dataset, q_func, bin, result[[1]], result[[2]])
-
+# impData <- impute_CH(dataset, q_func, bin, result1[[1]], result1[[2]])
 
 # ##########################################################################
 # 
