@@ -205,17 +205,21 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
 ## dataset; 2. get bootstrap datasets from original dataset;
 ## 3. impute each bootstrap dataset separately with fitted Markov Chain.
 ## param:
-##   data:     matrix contains original data. If imputation is not processed
-##             by strata, then it should not contains strata column.
+##   data:     matrix contains original data. One column is strata if by != NULL.
 ##   q_func:   matrix with 0-1 specify q function.
 ##   bin:      vector inidcates bins cross time.
 ##   start_initP: start value of initial probability for BW algorithm to fit Markov chain.
 ##   start_tP: start value of transition probability for BW algorithm to fit Markov chain.
 ##   m:        int, number of imputations.
 ##   by:       int or char, indicates which column in data is strata.
+##             If NULL, impute all together.
 ##   tol_llk:  num, indicates the tolerance of BW algorithm.
 ## value:
 ##   a list with length m. Each component is one imputation.
+## details:
+##   If by != NULL, data must include one column indicating strata and column
+##   name/num must be indicated in by. If by == NULL, then data must NOT contain
+##   strata column.
 
 ## with strata
 imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m, by = NULL, tol_llk = 0) {
@@ -289,7 +293,7 @@ NM2CH_data <- function(data, days=paste0("D",1:28), strata = "strata") {
     }
   }
   
-  strt <- as.numeric(data[, strata])
+  strt <- as.numeric(as.factor(data[, strata]))
   
   list(cbind(strt, tdata), q_func,
        cbind(unq_state, unq_state_num))
@@ -334,7 +338,8 @@ get_start <- function(data, bin) {
 # start_tP <- start_BW[[1]]
 # 
 # BW_CH(CHdata[[1]][, -1], CHdata[[2]], bin, start_initP, start_tP)
-# testimp <- imputeBS_CH(CHdata[[1]], CHdata[[2]], bin, start_initP, start_tP, m = 3, by = 1)
+# testimp  <- imputeBS_CH(CHdata[[1]], CHdata[[2]], bin, start_initP, start_tP, m = 3, by = 1)
+# testimp2 <- imputeBS_CH(CHdata[[1]][, -1], CHdata[[2]], bin, start_initP, start_tP, m = 3)
 #
 #
 # 
