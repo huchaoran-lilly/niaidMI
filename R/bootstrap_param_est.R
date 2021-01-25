@@ -38,6 +38,7 @@
 bootstrap_param_est <-
 function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1), 
          Em=get_emission(wide, days), tol=1E-6, maxiter=200, silent=FALSE) {
+
   
   if(!is.data.frame(wide))
     stop("wide must be a data.frame.")
@@ -75,11 +76,14 @@ function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1),
   fit=.baum_welsh(Pri=strt$Pri, s=s, Tran=strt$Tran, Em=Em, bin=bin, tol=tol,  maxiter=maxiter)
   if(!silent) cat("Fiting Bootstrap Samples:\n")
   boot=lapply(1:b, function(i) {
-    if(!silent) cat("    b=",i,"\n")
+    if(!silent) cat("    b=",i)
     boot=.bootstrap_dta(Em=Em, M=M, s=s)
-    strt=.get_start(M=boot$M,s=boot$s, bin=bin)
-    fit=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=strt$Tran, Em=boot$Em, bin=bin, tol=tol,  maxiter=maxiter)
-    return(fit[c("Tran","Pri")])
+    # strt=.get_start(M=boot$M,s=boot$s, bin=bin)
+
+    fit1=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=fit$Tran, Em=boot$Em, bin=bin, tol=tol,  maxiter=maxiter)
+    # fit1=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=fit$Tran, Em=boot$Em, bin=bin, tol=tol,  maxiter=maxiter)
+    if(!silent) cat(", iterations=", fit1$nit,"\n")
+    return(fit1[c("Tran","Pri")])
   })
   
   return(list(fit=fit, boot=boot, s=s, bin=bin, days=days, Em=Em))
@@ -114,7 +118,7 @@ function(M,s,bin) {
 
 
 .get_tran <-
-function(M, pos, const=1E-20) {
+function(M, pos, const=1E-6) {
 
   M=M[,pos]
   tbl=lapply(1:nrow(M), function(i) {
@@ -137,7 +141,6 @@ function(M, pos, const=1E-20) {
   return(tranNum)
 
 }
-
 
 
 
