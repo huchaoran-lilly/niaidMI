@@ -38,28 +38,46 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
     #   browser()
     
     #Update predicted  transitions
-    tran_w  = array(0, c(n_bin, n_states,n_states))
+    #tran_w = array(0, c(n_bin, n_states,n_states))
+    tran_w =replicate(n_bin, matrix(0,n_states,n_states), simplify = FALSE)
+    V=fb$beta * Em
     for(i  in 1:n) {
       for(t in 1:(n_day-1)) {
         O1=fb$alpha[i,t,]*Tran[[ bin[t] ]]
-        v1=fb$beta[i,t+1,] * Em[i,t+1,]
-        tran_w0=col_mult(O1, v1)
-        tran_w[bin[t],,]=tran_w[bin[t],,]+tran_w0/fbc[t+1]#sum(tran_w0)
+        #v1=fb$beta[i,t+1,] * Em[i,t+1,]
+        tran_w0=col_mult(O1, V[i,t+1,])
+        tran_w[[ bin[t] ]]=tran_w[[ bin[t] ]]+tran_w0/fbc[t+1]#sum(tran_w0)
       }
     }
     
     ##Parameters update transition
-    for(b in 1:n_bin) {
-      tmp=tran_w[b,,]
-      tmp=tmp/rowSums(tmp)
-      tmp[8,]=c(0,0,0,0, 0,0,0,1)
-      Tran[[b]]=tmp
-    }
+    
+    Tran=lapply(tran_w, function(tmp) {
+      norm_const=rowSums(tmp)
+      if(any(norm_const==0)) {
+        #in this scenario data aparently contains no information 
+        #where patient transitions out of a state
+        #to avoid divide by zero nan we fix
+        #parameter transition out of state should not impact likelihood
+        tmp[which(norm_const==0),]=1
+        norm_const=rowSums(tmp)
+      }
+        
+      ret=tmp/norm_const
+      ret[8,]=c(0,0,0,0, 0,0,0,1)
+      return(ret)
+    })
+    # for(b in 1:n_bin) {
+    #   tmp=tran_w[b,,]
+    #   tmp=tmp/rowSums(tmp)
+    #   tmp[8,]=c(0,0,0,0, 0,0,0,1)
+    #   Tran[[b]]=tmp
+    # }
 
     ##Parameters update initial state
     Pri=lapply(Pri, function(x) {x[]=0;return(x)})
     for(i in 1:n) {
-      tmp=fb$alpha[i,1,]*fb$beta[i,1,]
+      tmp=V[i,1,]#fb$alpha[i,1,]*fb$beta[i,1,]
       Pri[[s[i]]]=Pri[[s[i]]]+tmp/sum(tmp)
     }
     Pri=lapply(Pri, function(x) {return(x/sum(x))})

@@ -31,6 +31,7 @@ impute <-
   function(wide, m, by=NULL, days=paste0("D",1:28), bin=rep(1,length(days)-1), 
            Em=get_emission(wide, days),
            listFormatOut=FALSE, tol=1E-6, maxiter=200, silent=FALSE) {
+
     
     if(!is.data.frame(wide))
       stop("wide must be a data.frame.")
@@ -91,7 +92,9 @@ impute <-
         impute(wide=wide_by, bin=bin, m=m, 
                days=days, Em=Em_by, 
                listFormatOut=TRUE, 
-               by=NULL, silent=silent)
+               by=NULL, tol=tol,  
+               maxiter=maxiter,
+               silent=silent)
       })
       
       ret=list()
