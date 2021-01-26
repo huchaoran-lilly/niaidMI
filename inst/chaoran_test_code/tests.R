@@ -12,7 +12,7 @@ bin <- c(rep(1, 6), #(Please not data has 28 days)
          rep(2, 7), rep(3, 7), rep(4, 7))
 
 library(niaidMI)
-dataset_NM=sim_data(n=200)
+dataset_NM=sim_data(n=100)
 
 #Reformat dataset from dataset_NM to dataset_CH
 dataset_CH <- NM2CH_data(dataset_NM)
