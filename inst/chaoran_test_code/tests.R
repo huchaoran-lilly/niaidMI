@@ -12,6 +12,7 @@ bin <- c(rep(1, 6), #(Please not data has 28 days)
          rep(2, 7), rep(3, 7), rep(4, 7))
 
 library(niaidMI)
+set.seed(2021)
 dataset_NM=sim_data(n=100)
 
 #Reformat dataset from dataset_NM to dataset_CH
@@ -24,7 +25,7 @@ start_tP <- start_BW[[1]]
 
 #Check Model Fit:
 fit_CH <- BW_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP)
-fit_NM <- bootstrap_param_est(wide=dataset_NM, b=2, bin=bin, tol = 0)[[1]]
+fit_NM <- bootstrap_param_est(wide=dataset_NM, b=2, bin=bin, tol = 0, maxiter = 1000)[[1]]
 
 
 #<<<<--TODO by Chaoran turn this into testthat---->>>>
