@@ -114,14 +114,14 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
     }
     
     ## fix state 8 related quant for NIAID
-    initP[8] <- 0
+    #initP[8] <- 0
     for (s in 1:n_bin) tP[[s]][8, ] <- c(rep(0, 7), 1)
     
     ## print option
     if (message) print(paste0("Iteration ", ite, ": log-likelihood is ", llk, "."))
     
     ## check whether stop
-    if (abs(llk_last - llk) <= tol_llk & ite >= 2) break
+    if (abs(llk_last - llk) <= tol_llk & ite >= 5) break
     
     ## update llk and iteration number
     llk_last <- llk
@@ -389,26 +389,26 @@ get_start <- function(data, bin) {
 # for (i in 1:100) {
 #   dataset[i, ] <- sample(c(1:7, 9), size = 28, replace = TRUE)
 # }
-# # dataset_fmt=dataset
-# # dataset_fmt[dataset_fmt==9]=NA
-# # colnames(dataset_fmt)=paste0("D",1:28)
-# # dataset_fmt=data.frame(dataset_fmt)
+# dataset_fmt=dataset
+# dataset_fmt[dataset_fmt==9]=NA
+# colnames(dataset_fmt)=paste0("D",1:28)
+# dataset_fmt=data.frame(dataset_fmt)
 # 
 # 
 # ## a quick example
 # result1 <- BW_CH(dataset, q_func, bin, start_initP, start_tP)
-# # result2 = bootstrap_param_est(wide=dataset_fmt, b=2, bin=bin, tol = 1e-20)[[1]]
-# # result1$initial_prob
-# # result2$Pri
-# # 
-# # result1[[2]]
-# # result2$Pri
+# result2 = bootstrap_param_est(wide=dataset_fmt, b=2, bin=bin, tol = 1e-20)[[1]]
+# result1$initial_prob
+# result2$Pri
+# 
+# result1[[2]]
+# result2$Pri
 # 
 # 
 # 
 # ## quick example
 # impData <- impute_CH(dataset, q_func, bin, result1[[1]], result1[[2]])
-
+#
 # ##########################################################################
 # 
 # 
