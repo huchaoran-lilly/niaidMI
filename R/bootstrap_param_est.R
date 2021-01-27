@@ -56,8 +56,8 @@ function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1),
     stop("b must be a vector")
   if(length(b)!=1)
     stop("length(b) must be 1.")
-  if(b<2)
-    stop("b must be >=2.")
+  if(b<0)
+    stop("b must be >=0.")
   
   M = wide[,days]
   M = as.matrix(do.call(cbind, lapply(M, function(x) {
@@ -74,19 +74,22 @@ function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1),
   strt=.get_start(M=M,s=s,bin=bin)
   if(!silent) cat("Fiting Model\n")
   fit=.baum_welsh(Pri=strt$Pri, s=s, Tran=strt$Tran, Em=Em, bin=bin, tol=tol,  maxiter=maxiter)
-  if(!silent) cat("Fiting Bootstrap Samples:\n")
-  boot=lapply(1:b, function(i) {
-    if(!silent) cat("    b=",i)
-    boot=.bootstrap_dta(Em=Em, M=M, s=s)
-    # strt=.get_start(M=boot$M,s=boot$s, bin=bin)
 
-    fit1=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=fit$Tran, Em=boot$Em, bin=bin, tol=tol,  maxiter=maxiter)
-    # fit1=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=fit$Tran, Em=boot$Em, bin=bin, tol=tol,  maxiter=maxiter)
-    if(!silent) cat(", iterations=", fit1$nit,"\n")
-    return(fit1[c("Tran","Pri")])
-  })
-  
-  return(list(fit=fit, boot=boot, s=s, bin=bin, days=days, Em=Em))
+  ret=list(fit=fit, s=s, bin=bin, days=days, Em=Em)
+  if(b>=1) {
+    if(!silent) cat("Fiting Bootstrap Samples:\n")
+    ret$boot=lapply(1:b, function(i) {
+      if(!silent) cat("    b=",i)
+      boot=.bootstrap_dta(Em=Em, M=M, s=s)
+      # strt=.get_start(M=boot$M,s=boot$s, bin=bin)
+      
+      fit1=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=fit$Tran, Em=boot$Em, bin=bin, tol=tol,  maxiter=maxiter)
+      # fit1=.baum_welsh(Pri=strt$Pri, s=boot$s, Tran=fit$Tran, Em=boot$Em, bin=bin, tol=tol,  maxiter=maxiter)
+      if(!silent) cat(", iterations=", fit1$nit,"\n")
+      return(fit1[c("Tran","Pri")])
+    })
+  }
+  return(ret)
 }
 
 .bootstrap_dta <-

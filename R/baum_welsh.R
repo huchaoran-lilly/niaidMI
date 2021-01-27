@@ -7,7 +7,7 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
   logLike_old <- 1
 
   nit=0
-  while((abs(logLike_new-logLike_old)/abs(logLike_old)) > tol) {
+  while((abs(logLike_new-logLike_old)/abs(logLike_old)) > tol & nit<3) {
     nit=nit+1
     
     if(nit>maxiter) {
@@ -31,6 +31,8 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
     
     #Log-Likelihood computation
     fbc=fb$c
+    V=fb$beta * Em
+    alpha=fb$alpha
     logLike_new <- sum(log(fbc))
     # cat("     ", logLike_new,"\n")
     
@@ -40,13 +42,13 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
     #Update predicted  transitions
     #tran_w = array(0, c(n_bin, n_states,n_states))
     tran_w =replicate(n_bin, matrix(0,n_states,n_states), simplify = FALSE)
-    V=fb$beta * Em
+
     for(i  in 1:n) {
       for(t in 1:(n_day-1)) {
-        O1=fb$alpha[i,t,]*Tran[[ bin[t] ]]
+        O1=alpha[i,t,]*Tran[[ bin[t] ]]
         #v1=fb$beta[i,t+1,] * Em[i,t+1,]
         tran_w0=col_mult(O1, V[i,t+1,])
-        tran_w[[ bin[t] ]]=tran_w[[ bin[t] ]]+tran_w0/fbc[t+1]#sum(tran_w0)
+        tran_w[[ bin[t] ]]=tran_w[[ bin[t] ]]+tran_w0/fbc[i,t+1]#sum(tran_w0)
       }
     }
     
@@ -91,7 +93,8 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
 
 .forward_backward <-
 function(Pri, s, Tran, bin, Em, n=dim(Em)[1], 
-                            n_day=dim(Em)[2], n_states=8, n_bin=max(bin), n_strata=max(s)) {
+                            n_day=dim(Em)[2], n_states=8, n_bin=max(bin),
+         n_strata=max(s)) {
 
   alpha=array(0,c(n, n_day, n_states))
   cm=matrix(0,n, n_day)
@@ -108,9 +111,9 @@ function(Pri, s, Tran, bin, Em, n=dim(Em)[1],
   }
   beta=array(0,c(n, n_day,n_states))
   for(i  in n:1) {
-    beta[i,n_day,] =  rep(1,n_states) / cm[i,n_day]
+    beta[i,n_day,] =  rep(1,n_states) #/ cm[i,n_day]
     for(t in (n_day-1):1) {
-      beta[i,t,] =  (Tran[[bin[t]]] %*% (Em[i,t+1,] * beta[i,t+1,])) / cm[i,t]
+      beta[i,t,] =  (Tran[[bin[t]]] %*% (Em[i,t+1,] * beta[i,t+1,])) / cm[i,t+1]
     }
   }
   return(list(alpha=alpha, beta=beta, c = cm))
