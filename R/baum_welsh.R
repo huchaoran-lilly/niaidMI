@@ -7,7 +7,7 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
   logLike_old <- 1
 
   nit=0
-  while((abs(logLike_new-logLike_old)/abs(logLike_old)) > tol & nit<3) {
+  while((abs(logLike_new-logLike_old)/abs(logLike_old)) > tol | nit<3) {
     nit=nit+1
     
     if(nit>maxiter) {
@@ -77,12 +77,17 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
     # }
 
     ##Parameters update initial state
-    Pri=lapply(Pri, function(x) {x[]=0;return(x)})
-    for(i in 1:n) {
-      tmp=V[i,1,]#fb$alpha[i,1,]*fb$beta[i,1,]
-      Pri[[s[i]]]=Pri[[s[i]]]+tmp/sum(tmp)
+    ab1=fb$beta[,1,]*alpha[,1,]
+    if(all(s==1)) {
+      tmp=colSums(ab1)
+      Pri=list(tmp/sum(tmp))
+    } else {
+      #lapply(split(ab1,s), function(x) colSums(x))
+      stop("strata not implemented like this now.") #this should not be possible to happen now
     }
-    Pri=lapply(Pri, function(x) {return(x/sum(x))})
+
+    
+  
   }
   
   ## Return and class definition
