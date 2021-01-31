@@ -29,7 +29,7 @@ Many cases of clearly incorrect inputs are automatically tested in this package 
 
 Test cases were created for 'bootstrap_param_est' and 'impute' with the following description:
 
-1. Data is simulated by the sim_data() function and double programming was used to demonstrate that results from the model fit including parameter estimates and the log-likelhood calculations yield the same results.
+1. Data is simulated by the sim_data() function and double programming was used to demonstrate that results from the model fit including parameter estimates and the log-likelhood calculations yield the same results. The tolerance of equal is `sqrt(.Machine$double.eps)=1.490116e-08` in our machine.
 
 2. .....
 

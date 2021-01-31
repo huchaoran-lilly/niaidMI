@@ -1,5 +1,5 @@
 Package: niaidMI
-Title: Imputes the NIAID OS scale using a markov model
+Title: Imputes the NIAID OS Scale using a Markov Model
 Version: 1.0
 Date: 2020-11-23
 Author: Nathan Morris[aut, cre],
@@ -9,6 +9,7 @@ Description: Performs multiple imputation of the NIAID OS score by using a Marko
 License: GPL (>= 2)
 Depends:
   R (>= 3.5.0)
+Suggests: testthat
 Imports: Rcpp (>= 1.0.3)
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
