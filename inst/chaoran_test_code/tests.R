@@ -2,7 +2,7 @@
 
 #######################################################################################################
 
-source("BW_imp_CH.R")
+source("../../tests/BW_imp_CH.R")
 
 #######################################################################################################
 
@@ -38,46 +38,85 @@ fit_CH$transition_prob[[4]]-fit_NM$Tran[[4]]
 
 fit_CH$initial_prob-fit_NM$Pri[[1]]
 
-
+##################################################################
 ## Check imputation with no stratification
 set.seed(2021)
-imp_CH <- imputeBS_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, m = 2)
+imp_CH <- imputeBS_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, m = 1000)
 set.seed(2021)
-imp_NM <- impute(dataset_NM, m=2, listFormatOut = TRUE)
-
-#todo: Chaoran to do test that for same
-
-
-## Check imputation with stratification
-set.seed(2021)
-imp_strat_CH <- imputeBS_CH(dataset_CH[[1]], dataset_CH[[2]], bin, start_initP, start_tP, m = 2, by = 1)
-set.seed(2021)
-imp_strat_NM <- impute(dataset_NM, by="strata", m=2, listFormatOut = TRUE)
+imp_NM <- impute(dataset_NM, m=1000, listFormatOut = TRUE)
 
 
 ## reformat result to compare results
-reform_result <- function(input, input_format = c("NM", "CH")) {
-  output <- vector('list', length(input))
+reform_result_nonstrata <- function(input, input_format = c("NM", "CH")) {
+  output <- NA
   if (input_format == "NM") {
     for (i in seq_len(length(input))) {
-      output[[i]] <- as.matrix(input[[i]][, -c(1,2,3)])
+      output <- rbind(output, as.matrix(input[[i]][, -c(1,2,3)]))
     }
   } else {
     for (i in seq_len(length(input))) {
-      output[[i]] <- as.matrix(input[[i]][, -1])
+      output <- rbind(output, as.matrix(input[[i]]))
     }
   }
   
-  output
+  output[-1, ]
 }
 
-imp_strat_NM <- reform_result(imp_strat_NM, "NM")
-imp_strat_CH <- reform_result(imp_strat_CH, "CH")
-
-imp_strat_CH[[1]] == imp_strat_NM[[1]]
+imp_NM <- reform_result_nonstrata(imp_NM, "NM")
+imp_CH <- reform_result_nonstrata(imp_CH, "CH")
 
 
+# test transition matrix
+estTransMatrx(imp_CH) - estTransMatrx(imp_NM)
+# test initial distribution
+estInitDist(imp_CH) - estInitDist(imp_NM)
 
+
+
+
+##################################################################
+## Check imputation with stratification
+set.seed(2021)
+imp_strat_CH <- imputeBS_CH(dataset_CH[[1]], dataset_CH[[2]], bin, start_initP, start_tP, m = 100, by = 1)
+set.seed(2021)
+imp_strat_NM <- impute(dataset_NM, by="strata", m=100, listFormatOut = TRUE)
+
+
+
+## reformat result to compare results
+reform_result_strata <- function(input, input_format = c("NM", "CH")) {
+  output <- NA
+  if (input_format == "NM") {
+    for (i in seq_len(length(input))) {
+      cart <- as.numeric(input[[i]][, 3])
+      output <- as.matrix(cbind(cart, input[[i]][, -c(1,2,3)]))
+    }
+  } else {
+    for (i in seq_len(length(input))) {
+      output <- as.matrix(input[[i]])
+    }
+  }
+  
+  output[-1, ]
+}
+
+imp_strat_NM <- reform_result_strata(imp_strat_NM, "NM")
+imp_strat_CH <- reform_result_strata(imp_strat_CH, "CH")
+
+
+# test transition matrix
+estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1]) -
+estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])
+
+estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1]) -
+estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])
+
+# test initial distribution
+estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1]) -
+estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])
+
+estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1]) -
+estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])
 
 
 

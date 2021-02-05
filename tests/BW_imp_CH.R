@@ -7,6 +7,8 @@
 ###               allowing strata imputation
 ### NM2CH     : transfer data from NM format to CH format
 ### get_start : get start value for BW algorithm according to NM's algorithm
+### estTransMatrx : estimate transition matrix empirically
+### estInitDist : estimate initial distribution empirically
 ### Check the examples at the bottom of the file for the
 ### explanation of arguments.
 
@@ -321,6 +323,65 @@ get_start <- function(data, bin) {
   
   list(strt$Tran, strt$Pri[[1]])
 }
+
+# ####################################################################################################
+
+
+## the data matrix should not contains Subject ID
+estTransMatrx <- function(data){ ## for niaid os only
+  
+  n_states <- length(unique(as.vector(data)))
+  
+  nomi <- matrix(0, ncol = n_states, nrow = n_states)
+  deno <- matrix(0, ncol = n_states, nrow = n_states)
+  
+  for (i in seq_len(nrow(data))) {
+    for (j in seq_len(ncol(data) - 1)) {
+      if (is.na(data[i, j]) | is.na(data[i, j + 1])) break
+      nomi[data[i, j], data[i, j + 1]] <- nomi[data[i, j], data[i, j + 1]] + 1
+      deno[data[i, j], ] <- deno[data[i, j], ] + 1
+    }
+  }
+  
+  #print(nomi)
+  #print(deno)
+  nomi / deno
+  
+}
+
+estTransMatrx(imp_CH)
+estTransMatrx(imp_NM)
+
+estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1])
+estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])
+
+estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1])
+estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])
+
+
+
+
+estInitDist <- function(data) { ## for niaid os only
+  deno <- length(na.omit(data[, 1]))
+  result <- numeric(8)
+  for (i in 1:8) {
+    result[i] <- sum(data[, 1] == i, na.rm = TRUE) / deno
+  }
+  result
+}
+
+estInitDist(imp_CH)
+estInitDist(imp_NM)
+
+estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1])
+estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])
+
+estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1])
+estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])
+
+
+
+# ####################################################################################################
 
 
 ################# EXAMPLE START HERE #################################################################
