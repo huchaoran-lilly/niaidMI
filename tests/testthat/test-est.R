@@ -19,7 +19,7 @@ start_tP <- start_BW[[1]]
 
 #Check Model Fit:
 fit_CH <- BW_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, message = FALSE)
-fit_NM <- bootstrap_param_est(wide=dataset_NM, b=0, bin=bin, tol = 0)$fit
+fit_NM <- bootstrap_param_est(wide=dataset_NM, b=0, bin=bin, tol = 0, silent = TRUE)$fit
 
 
 #<<<<--TODO by Chaoran turn this into testthat---->>>>
