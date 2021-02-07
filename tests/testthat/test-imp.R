@@ -3,8 +3,9 @@ skip_on_cran()
 source("../BW_imp_CH.R")
 
 ## bin: a vector with length(dat) - 1 
-bin <- c(rep(1, 6), #(Please not data has 28 days)
-         rep(2, 7), rep(3, 7), rep(4, 7))
+# bin <- c(rep(1, 6), #(Please note data has 28 days)
+#          rep(2, 7), rep(3, 7), rep(4, 7))
+bin <- rep(1, 27)
 
 set.seed(2021)
 dataset_NM=sim_data(n=200)
@@ -44,13 +45,14 @@ reform_result_nonstrata <- function(input, input_format = c("NM", "CH")) {
 imp_NM <- reform_result_nonstrata(imp_NM, "NM")
 imp_CH <- reform_result_nonstrata(imp_CH, "CH")
 
+tol_nonstrata <- 0.01
 
 test_that("non-strata imputation functions works the same between NM and CH",
           {
             # test transition matrix
-            expect_true(all((estTransMatrx(imp_CH) - estTransMatrx(imp_NM)) <= 0.01))
+            expect_true(all((abs(estTransMatrx(imp_CH) - estTransMatrx(imp_NM))) <= tol_nonstrata))
             # test initial distribution
-            expect_true(all((estInitDist(imp_CH) - estInitDist(imp_NM)) <= 0.01))
+            expect_true(all((abs(estInitDist(imp_CH) - estInitDist(imp_NM))) <= tol_nonstrata))
           })
 
 
@@ -84,17 +86,17 @@ reform_result_strata <- function(input, input_format = c("NM", "CH")) {
 imp_strat_NM <- reform_result_strata(imp_strat_NM, "NM")
 imp_strat_CH <- reform_result_strata(imp_strat_CH, "CH")
 
-tol_strata <- 0.1
+tol_strata <- 0.05
 
 # test transition matrix
-trn1 <- all((estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1]) - estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])) <= tol_strata)
+trn1 <- all(abs(estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1]) - estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])) <= tol_strata)
 
-trn2 <- all((estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1]) - estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])) <= tol_strata)
+trn2 <- all(abs(estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1]) - estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])) <= tol_strata)
 
 # test initial distribution
-int1 <- all((estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1]) - estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])) <= tol_strata)
+int1 <- all(abs(estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1]) - estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])) <= tol_strata)
 
-int2 <- all((estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1]) - estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])) <= tol_strata)
+int2 <- all(abs(estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1]) - estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])) <= tol_strata)
 
 
 test_that("strata imputation functions work the same between NM and CH",

@@ -20,19 +20,22 @@ The following roles will be involved in validation:
  + Second Progammer 
 
 ## Automated Testing of Edge Cases
-Many cases of clearly incorrect inputs are automatically tested in this package to ensure the package correctly throws errors and warnings. The code for these edge cases can be found in the file "/niaidMI/tests/testthat/test-edge-cases.R". These include edge cases for the following 2 functions:
+Many cases of clearly incorrect inputs are automatically tested in this package to ensure the package correctly throws errors and warnings. These include edge cases for the following 2 functions:
 
  + bootstrap_param_est()
  + impute()
  
+> The code for these edge cases can be found in the file "/niaidMI/tests/testthat/test-edge-cases.R". 
+
 ## Automated Testing of 'bootstrap_param_est' and 'impute' functionality:
 
 Test cases were created for 'bootstrap_param_est' and 'impute' with the following description:
 
 1. Data is simulated by the sim_data() function and double programming was used to demonstrate that results from the model fit including parameter estimates and the log-likelhood calculations yield the same results. The tolerance of equal is `sqrt(.Machine$double.eps)=1.490116e-08` in our machine.
 
-2. .....
+2. Imputation function is tested for strata and non-strata separately with double programming. The imputation sets are compared with the yardstick that empirical transition matrix and empirical initial distribution. The distribution of states at each time points is not used because it requires a much bigger number of imputations which is time-consuming. The tolerance of equal is defined as 0.01 for non-strata and 0.05 for strata. When generating data, homogeneous assumption is applied in order to reduce number of imputations required. Number of imputations is set as 100
 
+> The code for these tests can be found in the file "/niaidMI/tests/testthat/test-est.R" and "/niaidMI/tests/testthat/test-imp.R".
 
 # Revisions
 

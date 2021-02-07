@@ -2,9 +2,10 @@
 
 source("../BW_imp_CH.R")
 
-## bin: a vector with length(dat) - 1 
+# ## bin: a vector with length(dat) - 1 
 bin <- c(rep(1, 6), #(Please not data has 28 days)
          rep(2, 7), rep(3, 7), rep(4, 7))
+
 
 set.seed(2021)
 dataset_NM=sim_data(n=200)

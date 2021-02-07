@@ -349,14 +349,14 @@ estTransMatrx <- function(data){ ## for niaid os only
   
 }
 
-estTransMatrx(imp_CH)
-estTransMatrx(imp_NM)
-
-estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1])
-estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])
-
-estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1])
-estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])
+# estTransMatrx(imp_CH)
+# estTransMatrx(imp_NM)
+# 
+# estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1])
+# estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])
+# 
+# estTransMatrx(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1])
+# estTransMatrx(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])
 
 
 
@@ -370,14 +370,14 @@ estInitDist <- function(data) { ## for niaid os only
   result
 }
 
-estInitDist(imp_CH)
-estInitDist(imp_NM)
-
-estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1])
-estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])
-
-estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1])
-estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])
+# estInitDist(imp_CH)
+# estInitDist(imp_NM)
+# 
+# estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 1), -1])
+# estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 1), -1])
+# 
+# estInitDist(imp_strat_CH[which(imp_strat_CH[, 1] == 2), -1])
+# estInitDist(imp_strat_NM[which(imp_strat_NM[, 1] == 2), -1])
 
 
 
