@@ -71,7 +71,7 @@ reform_result_strata <- function(input, input_format = c("NM", "CH")) {
   output <- NA
   if (input_format == "NM") {
     for (i in seq_len(length(input))) {
-      cart <- as.numeric(input[[i]][, 3])
+      cart <- as.numeric(as.factor(input[[i]][, 3]))
       output <- as.matrix(cbind(cart, input[[i]][, -c(1,2,3)]))
     }
   } else {

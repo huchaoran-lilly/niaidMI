@@ -186,7 +186,7 @@ impute_CH <- function(dataset, q_func, bin, initP, tP){
 enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
                             tol_llk = 0) { #m: num of bootstrap
   
-  fitMC <- BW_CH(data, q_func, bin, start_initP, start_tP, tol_llk = tol_llk, message = FALSE)
+  #fitMC <- BW_CH(data, q_func, bin, start_initP, start_tP, tol_llk = tol_llk, message = FALSE)
   
   result <- vector("list", m)
   cart <- result
@@ -196,6 +196,7 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
   }
   
   for (i in 1:m) {
+    fitMC <- BW_CH(data, q_func, bin, start_initP, start_tP, tol_llk = tol_llk, message = FALSE)
     result[[i]] <- impute_CH(cart[[i]], q_func, bin, fitMC[[1]], fitMC[[2]])
   }
   result
