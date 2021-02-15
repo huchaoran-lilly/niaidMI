@@ -69,12 +69,6 @@ function(Pri, s, Tran, Em, bin, n_bin=max(bin),
       ret[8,]=c(0,0,0,0, 0,0,0,1)
       return(ret)
     })
-    # for(b in 1:n_bin) {
-    #   tmp=tran_w[b,,]
-    #   tmp=tmp/rowSums(tmp)
-    #   tmp[8,]=c(0,0,0,0, 0,0,0,1)
-    #   Tran[[b]]=tmp
-    # }
 
     ##Parameters update initial state
     ab1=fb$beta[,1,]*alpha[,1,]
