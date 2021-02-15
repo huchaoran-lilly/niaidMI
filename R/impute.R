@@ -130,25 +130,28 @@ impute <-
                            n_day=n_day, n_states=n_states, n_bin=n_bin, n_strata=n_strata)
     
     ret=matrix(0, n, n_day)
-    for(i in 1:n) {
-      
-      # cat(i, "\n")
-      #day 1
-      tmp=fb$alpha[i,1,]*fb$beta[i,1,]
+    
+    
+    #Log-Likelihood computation
+    fbc=fb$c
+    V=fb$beta * Em
+    alpha=fb$alpha
+
+
+    # tran_w =replicate(n_bin, matrix(0,n_states,n_states), simplify = FALSE)
+    for(i  in 1:n) {
+      tmp=fb$beta[i,1,]*alpha[i,1,]
       p=tmp/sum(tmp)
       ret[i,1]=.samp(p)
-      
-      #other days
       for(t in 1:(n_day-1)) {
-        # cat(" ", t, "\n")
-        O1=fb$alpha[i,t,]*Tran[[ bin[t] ]]
-        v1=fb$beta[i,t+1,] * Em[i,t+1,]
-        tran_w0=col_mult(O1, v1)
+        O1=alpha[i,t,]*Tran[[ bin[t] ]]
+        tran_w0=col_mult(O1, V[i,t+1,])
         p=tran_w0[ret[i,t],]
         p=p/sum(p)
         ret[i,t+1]=.samp(p)
       }
     }
+    
     return(ret)
   }
 
