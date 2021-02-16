@@ -184,7 +184,7 @@ impute_CH <- function(dataset, q_func, bin, initP, tP){
 
 ## no strata
 enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
-                            tol_llk = 0) { #m: num of bootstrap
+                            tol_llk = 0, fix_const = 1E-6) { #m: num of bootstrap
   
   #fitMC <- BW_CH(data, q_func, bin, start_initP, start_tP, tol_llk = tol_llk, message = FALSE)
   
@@ -196,8 +196,19 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
   }
   
   for (i in 1:m) {
-    fitMC <- BW_CH(data, q_func, bin, start_initP, start_tP, tol_llk = tol_llk, message = FALSE)
-    result[[i]] <- impute_CH(cart[[i]], q_func, bin, fitMC[[1]], fitMC[[2]])
+    fitMC <- BW_CH(cart[[i]], q_func, bin, start_initP, start_tP, tol_llk = tol_llk, message = FALSE)
+    
+    ## solve conflict of bootstrap and fwd/bwd calculation
+    cart_initP <- fitMC[[1]] + fix_const
+    cart_initP <- cart_initP / sum(cart_initP)
+    
+    cart_tP <- lapply(fitMC[[2]], function(x) {
+      x <- x + fix_const
+      x / rowSums(x)
+    })
+    ## this approach may be improved in future
+    
+    result[[i]] <- impute_CH(data, q_func, bin, cart_initP, cart_tP)
   }
   result
 }
@@ -217,6 +228,7 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
 ##   by:       int or char, indicates which column in data is strata.
 ##             If NULL, impute all together.
 ##   tol_llk:  num, indicates the tolerance of BW algorithm.
+##   fix_const: num, a small enough number to solve conflict of bootstrap and real data.
 ## value:
 ##   a list with length m. Each component is one imputation.
 ## details:
@@ -225,9 +237,10 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
 ##   strata column.
 
 ## with strata
-imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m, by = NULL, tol_llk = 0) {
+imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
+                        by = NULL, tol_llk = 0, fix_const = 1E-6) {
   if (is.null(by)) {
-    result <- enc_imputeBS_CH(data, q_func, bin, start_initP, start_tP, m, tol_llk = 0)
+    result <- enc_imputeBS_CH(data, q_func, bin, start_initP, start_tP, m, tol_llk, fix_const)
     return(result)
   }
   
@@ -238,7 +251,7 @@ imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m, by = NULL, 
   databy <- vector("list", length(unique(by)))
   for (i in seq_len(length(unique(by)))) {
     databy[[i]] <- data[by == unq_by[i], -1]
-    cart <- enc_imputeBS_CH(databy[[i]], q_func, bin, start_initP, start_tP, m, tol_llk = 0)
+    cart <- enc_imputeBS_CH(databy[[i]], q_func, bin, start_initP, start_tP, m, tol_llk, fix_const)
     for (j in 1:m) {
       result[[j]] <- rbind(result[[j]], cbind(unq_by[i], cart[[j]]))
     }

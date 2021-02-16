@@ -8,7 +8,8 @@ source("../BW_imp_CH.R")
 bin <- rep(1, 27)
 
 set.seed(2021)
-dataset_NM=sim_data(n=200)
+#dataset_NM=sim_data(n=200)
+dataset_NM=sim_data(n=200, drop_out_rate = 0.025, sporatic_rate = 0.2)
 
 #Reformat dataset from dataset_NM to dataset_CH
 dataset_CH <- NM2CH_data(dataset_NM)
@@ -21,9 +22,9 @@ start_tP <- start_BW[[1]]
 ##################################################################
 ## Check imputation with no stratification
 set.seed(2021)
-imp_CH <- imputeBS_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, m = 100)
+imp_CH <- imputeBS_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, m = 50)
 set.seed(2021)
-imp_NM <- impute(dataset_NM, m=100, listFormatOut = TRUE, silent = TRUE)
+imp_NM <- impute(dataset_NM, m=50, listFormatOut = TRUE, silent = TRUE)
 
 
 ## reformat result to compare results
@@ -45,7 +46,7 @@ reform_result_nonstrata <- function(input, input_format = c("NM", "CH")) {
 imp_NM <- reform_result_nonstrata(imp_NM, "NM")
 imp_CH <- reform_result_nonstrata(imp_CH, "CH")
 
-tol_nonstrata <- 0.01
+tol_nonstrata <- 0.0001
 
 test_that("non-strata imputation functions works the same between NM and CH",
           {
@@ -72,11 +73,11 @@ reform_result_strata <- function(input, input_format = c("NM", "CH")) {
   if (input_format == "NM") {
     for (i in seq_len(length(input))) {
       cart <- as.numeric(as.factor(input[[i]][, 3]))
-      output <- as.matrix(cbind(cart, input[[i]][, -c(1,2,3)]))
+      output <- rbind(output, as.matrix(cbind(cart, input[[i]][, -c(1,2,3)])))
     }
   } else {
     for (i in seq_len(length(input))) {
-      output <- as.matrix(input[[i]])
+      output <- rbind(output, as.matrix(input[[i]]))
     }
   }
   
