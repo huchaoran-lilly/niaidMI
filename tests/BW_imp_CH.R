@@ -209,6 +209,8 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
     ## this approach may be improved in future
     
     result[[i]] <- impute_CH(data, q_func, bin, cart_initP, cart_tP)
+    
+    print(paste("imputation", i, "is completed"))
   }
   result
 }

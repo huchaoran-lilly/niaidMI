@@ -18,7 +18,7 @@ start_BW <- get_start(dataset_CH[[1]][, -1], bin)
 start_initP <- start_BW[[2]]
 start_tP <- start_BW[[1]]
 
-
+setTimeLimit(cpu = Inf)
 ##################################################################
 ## Check imputation with no stratification
 set.seed(2021)
