@@ -9,7 +9,7 @@ bin <- rep(1, 27)
 
 set.seed(2021)
 #dataset_NM=sim_data(n=200)
-dataset_NM=sim_data(n=200, drop_out_rate = 0.025, sporatic_rate = 0.2)
+dataset_NM=sim_data(n=200, drop_out_rate = 0.02, sporatic_rate = 0.2)
 
 #Reformat dataset from dataset_NM to dataset_CH
 dataset_CH <- NM2CH_data(dataset_NM)
@@ -18,14 +18,17 @@ start_BW <- get_start(dataset_CH[[1]][, -1], bin)
 start_initP <- start_BW[[2]]
 start_tP <- start_BW[[1]]
 
-setTimeLimit(cpu = Inf)
+#setSessionTimeLimit(cpu = Inf, elapsed = Inf)
 ##################################################################
 ## Check imputation with no stratification
 set.seed(2021)
-imp_CH <- imputeBS_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, m = 50)
-set.seed(2021)
-imp_NM <- impute(dataset_NM, m=50, listFormatOut = TRUE, silent = TRUE)
+imp_CH <- imputeBS_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, m = 50, tol_llk = 1e-10, dataNM = dataset_NM)
 
+set.seed(2021)
+imp_NM <- impute(dataset_NM, m=50, listFormatOut = TRUE, silent = TRUE, tol = 1e-10, maxiter = 100000)
+
+set.seed(2021)
+imp_NM <- impute_debug(dataset_NM, m=50, listFormatOut = TRUE, silent = TRUE, tol = 1e-10, maxiter = 100000)
 
 ## reformat result to compare results
 reform_result_nonstrata <- function(input, input_format = c("NM", "CH")) {
@@ -43,8 +46,10 @@ reform_result_nonstrata <- function(input, input_format = c("NM", "CH")) {
   output[-1, ]
 }
 
-imp_NM <- reform_result_nonstrata(imp_NM, "NM")
-imp_CH <- reform_result_nonstrata(imp_CH, "CH")
+imp_NMt <- reform_result_nonstrata(imp_NM, "NM")
+imp_CHt <- reform_result_nonstrata(imp_CH, "CH")
+table(imp_NMt == imp_CHt)
+
 
 tol_nonstrata <- 0.0001
 

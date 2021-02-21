@@ -95,6 +95,7 @@ function(wide, b, days=paste0("D",1:28), bin=rep(1,length(days)-1),
 .bootstrap_dta <-
   function(Em, M, s) {
     pos=sample(1:nrow(M), replace = TRUE)
+    #cat(pos, "\n")
     return(list(Em=Em[pos,,], M=M[pos,], s=s[pos]))
   }
 .samp <-

@@ -65,7 +65,7 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
   initP  <- start_initP
   tP     <- start_tP
   ite <- 1
-  llk_last <- 0
+  llk_last <- 1
   
   while (TRUE) {
     ## initiate each iteration
@@ -123,7 +123,7 @@ BW_CH <- function(dataset, q_func, bin, start_initP, start_tP,
     if (message) print(paste0("Iteration ", ite, ": log-likelihood is ", llk, "."))
     
     ## check whether stop
-    if (abs(llk_last - llk) <= tol_llk & ite >= 5) break
+    if (abs((llk_last - llk)/llk_last) <= tol_llk & ite >= 5) break
     
     ## update llk and iteration number
     llk_last <- llk
@@ -170,6 +170,10 @@ impute_CH <- function(dataset, q_func, bin, initP, tP){
     for (j in 2:len_data) {
       prob_cart <- xi[imp_cart[j - 1], , j - 1] / sum(xi[imp_cart[j - 1], , j - 1])
       imp_cart[j] <- sample(1:8, size = 1, replace = TRUE, prob = prob_cart)
+      
+      ### for debug purpose ######################################################
+      #cat("patient", i, "date", j, "prob", prob_cart, "\n")
+      ### for debug purpose ######################################################
     }
     
     imp_data[i, ] <- imp_cart
@@ -210,7 +214,9 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
     
     result[[i]] <- impute_CH(data, q_func, bin, cart_initP, cart_tP)
     
+    ### for debug purpose ######################################################
     print(paste("imputation", i, "is completed"))
+    ### for debug purpose ######################################################
   }
   result
 }
