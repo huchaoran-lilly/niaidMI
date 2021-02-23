@@ -1,6 +1,6 @@
 skip_on_cran()
 
-source("../BW_imp_CH.R")
+source("BW_imp_CH.R")
 
 ## bin: a vector with length(dat) - 1 
 # bin <- c(rep(1, 6), #(Please note data has 28 days)
@@ -22,7 +22,7 @@ start_tP <- start_BW[[1]]
 ##################################################################
 ## Check imputation with no stratification
 set.seed(2021)
-imp_CH <- imputeBS_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, m = 50, tol_llk = 1e-10, dataNM = dataset_NM)
+imp_CH <- imputeBS_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_tP, m = 50, tol_llk = 1e-10)
 
 set.seed(2021)
 imp_NM <- impute(dataset_NM, m=50, listFormatOut = TRUE, silent = TRUE, tol = 1e-10, maxiter = 100000)

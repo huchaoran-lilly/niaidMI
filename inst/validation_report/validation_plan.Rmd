@@ -1,51 +1,171 @@
 ---
-title: "User Defined Validation Plan"
-author: "Nathan Morris"
-date: "1/28/2021"
-output: html_document
+title: "User defined validation plan"
+subtitle: "R package `niaidMI`"
+output:
+  html_document:
+    number_sections: true
 ---
 
 # Purpose of this document
-This document describes the "user defined validation plan" as descriped in "Develop, Validate, and Execute Code." Thus, it documents the steps to be taken to reasonably ensure this package functions according to specifications. The function documentation and vignettes serve as the specifications.
+
+This document describes the "user defined validation plan" as described in
+"Develop, Validate, and Execute Code". Thus, it documents the steps to be taken
+to reasonably ensure this package functions according to specifications.
+The function documentation and vignettes serve as the specifications.
+
 
 # Rationale
 
-Since this is a package with limited scope that will be installed and/or used by other applications, many of the supporting deliverables that are typical for computer system validation are not applicable. The Security plan is not required, because any security functionality to control use of the package is the responsibility of the application using the package. Access to the code is controlled by GitHub. Furthermore, the package will rely on GitHub Backup/Restoration and Disaster Recovery of the source code. Applications that incorporate the package are responsible for their own Disaster Recovery and Backup/Restoration processes. The Business Continuity Plan is the responsibility of the application that incorporates the package. This package may be placed on CRAN.  
+Since this is a package with limited scope that will be installed and/or
+used by other applications, many of the supporting deliverables that are
+typical for computer system validation are not applicable. The Security plan
+is not required, because any security functionality to control use of the
+package is the responsibility of the application using the package.
+Access to the code is controlled by GitHub. Furthermore, the package will
+rely on GitHub Backup/Restoration and Disaster Recovery of the source code.
+Applications that incorporate the package are responsible for their own
+Disaster Recovery and Backup/Restoration processes. The Business Continuity
+Plan is the responsibility of the application that incorporates the package.
+This package may be placed on CRAN.  
 
 
 # Roles
+
 The following roles will be involved in validation:
 
- + Code Author
- + Second Progammer 
+ + Code Author: Nathan Morris
+ + Second Progammer: Chaoran Hu
 
-## Automated Testing of Edge Cases
-Many cases of clearly incorrect inputs are automatically tested in this package to ensure the package correctly throws errors and warnings. These include edge cases for the following 2 functions:
+
+# Quick review of methodology
+
+The detailed demonstration of multiple imputation with hidden Markov model
+(MI-HMM) can be found in XXX. We briefly review the major steps of
+MI-HMM as the following algorithm.
+
+1. Generate $M$ bootstrap data from original data;
+
+2. Fit (`niaidMI:::.baum_welsh`) HMM to each bootstrap data and get
+estimate $\theta_m$, $m=1,...,M$;
+
+3. Impute (`niaidMI:::.impute_one`) original data with
+$P(missing|obsvered, \theta_m)$ to provide $M$ imputations.
+
+Mention that, the start value for estimation (Baun-Welch algorithm) is
+evaluating as empirical transition matrix and initial probability from
+original data.
+
+
+# Validation plan
+
+Two critical working blocks in R package`niaidMI` are `niaidMI:::.baum_welsh`
+that estimates the unknown parameters in HMM with Baun-Welch algorithm and
+`niaidMI:::.impute_one` that impute the missing values with estimated HMM.
+So, our validation plan will also focus on these two working blocks.
+Additionally, functions' capability of handling edge cases will also be
+tested. The validation process is automated by `testthat`.
+
+## Testing of edge cases
+
+Many cases of clearly incorrect inputs are automatically tested in this package
+to ensure the package correctly throws errors and warnings. These include
+edge cases for the following 2 user-friendly functions:
 
  + bootstrap_param_est()
  + impute()
  
-> The code for these edge cases can be found in the file "/niaidMI/tests/testthat/test-edge-cases.R". 
+*R code is available in "/niaidMI/tests/testthat/test-edge-cases.R".*
 
-## Automated Testing of 'bootstrap_param_est' and 'impute' functionality:
+## Testing of `niaidMI:::.baum_welsh`
 
-Test cases were created for 'bootstrap_param_est' and 'impute' with the following description:
+Data used in testing is simulated by `niaidMI::sim_data()`. Double
+programming was used to demonstrate that results from the model fit
+including both parameter estimates and the log-likelihood calculations yield
+the same results. Considering the nature of floating point number, equal is
+defined as two numbers difference is less than
+`sqrt(.Machine$double.eps)=1.490116e-08`, that is the default value
+in `base::all.equal`.
 
-1. Data is simulated by the sim_data() function and double programming was used to demonstrate that results from the model fit including parameter estimates and the log-likelhood calculations yield the same results. The tolerance of equal is `sqrt(.Machine$double.eps)=1.490116e-08` in our machine.
+*R code is available in "/niaidMI/tests/testthat/test-est.R".*
 
-2. Imputation function is tested for strata and non-strata separately with double programming. The imputation sets are compared with the yardstick that empirical transition matrix and empirical initial distribution. The distribution of states at each time points is not used because it requires a much bigger number of imputations which is time-consuming. The tolerance of equal is defined as 0.01 for non-strata and 0.05 for strata. When generating data, homogeneous assumption is applied in order to reduce number of imputations required. Number of imputations is set as 100
 
-> The code for these tests can be found in the file "/niaidMI/tests/testthat/test-est.R" and "/niaidMI/tests/testthat/test-imp.R".
+## Testing of `niaidMI:::.impute_one`
+
+`niaidMI:::.impute_one` is tested by double programming in the sense that
+independent implementations from code author and second programmer provide
+the identical results when using the same transition matrix and initial
+probability of HMM.
+In our testing, a data with 200 patients and 28 days observations is
+generated by `niaidMI::sim_data()` with dropout rate 0.02 and sporatic
+rate 0.2, which yield around 1825 missing values. 100 imputations are
+generated by code author and second programmer's implementations separately.
+In this testing, equal is defined as identical because Niaid-OS is a 8-levels
+ordered scale.
+
+*R code is available in "/niaidMI/tests/testthat/test-impute.R".*
+
+## Limitation of this validation plan
+
+Validation will not be processed for high-level functions in `niaidMI`
+but just two most important working blocks for two reasons. First,
+similar to other imputation methods, our method includes significant
+number of random number generators. The common approach to keep result
+reproducible is using random number seed `set.seed`. However,
+one disadvantage of random number seed in R is its sensitivity to the
+order of random number generators. We provide a toy example here.
+```{r}
+foo1 <- function()
+{
+    x <- rnorm(1)
+    x + runif(1)
+}
+
+foo2 <- function()
+{
+    x <- runif(1)
+    x + rnorm(1)
+}
+
+set.seed(123)
+foo1()
+
+set.seed(123)
+foo2()
+```
+Second, in MI-HMM method, `niaidMI:::.impute_one` function will take
+the estimate result from `niaidMI:::.baum_welsh` as input.
+However, as we mentioned before, code author and second programmer's
+estimation function can provide same but still tiny different results.
+However, this tiny difference in estimate will be augmented during
+imputed process. In practice, we are confident this will not induce
+any problem or mistake. According to our simulation result, for the
+same simulated data used in previous section, there is only 6 missing
+values imputed differently per 50 imputations. Reproducible code is
+provided in "niaidMI/inst/validation_code_arxiv" that served as
+support of this statement (second reason).
+
 
 # Revisions
 
-## Version Control
-The source code for this package is stored in a secured GitHub repository. Semantic versioning (https://semver.org/) will be utilized for version numbering starting with version 0.1.0.
+## Version control
+The source code for this package is stored in a secured GitHub repository.
+Semantic versioning (https://semver.org/) will be utilized for version numbering
+starting with version 0.1.0.
 
-## Revise Code
+## Revise code
 
-When changes are made to the code, the SOPs should be followed. Since the code is in a version controlled repository, all code changes and the rationale for the modifications are traceable with GitHub. The code will be reviewed for accuracy when a new revision of the package is released, per the automated processes described above.
+When changes are made to the code, the SOPs should be followed. Since the code
+is in a version controlled repository, all code changes and the rationale for
+the modifications are traceable with GitHub. The code will be reviewed for
+accuracy when a new revision of the package is released, per the automated
+processes described above.
 
-## Periodic Review Strategy
+## Periodic review strategy
 
-Since this is an R package and not a full application, it will have a limited periodic review. The validation documentation (including training information) will be reviewed for accuracy when a new revision of the package is released. Automated testing will be performed when the updated package is built. Given the limited scope of this package, any incidents, problems, deviations, action items, and changes will be reviewed when they are occur and addressed as applicable. No additional monitoring or trending will be performed.
+Since this is an R package and not a full application, it will have a limited
+periodic review. The validation documentation (including training information)
+will be reviewed for accuracy when a new revision of the package is released.
+Automated testing will be performed when the updated package is built. Given
+the limited scope of this package, any incidents, problems, deviations, action
+items, and changes will be reviewed when they are occur and addressed as
+applicable. No additional monitoring or trending will be performed.
