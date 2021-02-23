@@ -1,6 +1,6 @@
 #skip_on_cran()
 
-source("../BW_imp_CH.R")
+source("BW_imp_CH.R")
 
 ## bin: a vector with length(dat) - 1 
 # bin <- c(rep(1, 6), #(Please note data has 28 days)
