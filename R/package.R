@@ -1,4 +1,4 @@
-#' niaidMI: multiple imputation of the NIAID OS score using a Markov markov model.
+#' niaidMI: multiple imputation of the NIAID OS score using a Markov model.
 #' @docType package
 #' @name niaidMI-package
 #' @useDynLib niaidMI, .registration = TRUE

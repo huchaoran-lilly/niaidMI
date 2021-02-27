@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_data.R
 \name{sim_data}
 \alias{sim_data}
-\title{Simulate data}
+\title{Simulate data.}
 \usage{
 sim_data(
   n,
@@ -34,7 +34,7 @@ sim_data(
 
 \item{sporatic_rate}{Parameter for simulating missing.}
 
-\item{miss_not_dead_rate}{Parameter to control missing but not data rate.}
+\item{miss_not_dead_rate}{Parameter to control missing but not dead rate.}
 }
 \value{
 Returns wide format data. Possible niad os values may be:
@@ -45,7 +45,7 @@ Returns wide format data. Possible niad os values may be:
 }
 }
 \description{
-Simulate data for the purpose of testing the pakcage.
+Simulate data for the purpose of testing the package.
 }
 \details{
 This simulation function is used to generated data for examples and testing of the package.

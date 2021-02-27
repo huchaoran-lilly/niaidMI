@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_emission.R
 \name{get_emission}
 \alias{get_emission}
-\title{Function get_emission}
+\title{Emission probability evaluation.}
 \usage{
 get_emission(wide, days)
 }
@@ -17,14 +17,14 @@ of days" x "8 NIAID stats." This array contains only 1 or 0 for each entry indic
 if the state for a given day and individual is consistent with the data.
 }
 \description{
-Creates Emission probabilities from data
+Creates emission probabilities from data. Generally for internal niaidMI package use only.
 }
 \details{
 States for each patient/day in 'wide' may be the following: 
 \itemize{
  \item{Not missing:}{An integer from 1 to 8.}
  \item{Missing:}{NA}
- \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
+ \item{Partially Missing:}{ Range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
 }
 Generally the user will not need to call this function directly because it is called by the 'impute' function.
 }

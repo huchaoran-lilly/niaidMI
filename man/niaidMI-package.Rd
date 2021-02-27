@@ -3,7 +3,7 @@
 \docType{package}
 \name{niaidMI-package}
 \alias{niaidMI-package}
-\title{niaidMI: multiple imputation of the NIAID OS score using a Markov markov model.}
+\title{niaidMI: multiple imputation of the NIAID OS score using a Markov model.}
 \description{
 Performs multiple imputation of the NIAID OS score by using a Markov model.
 }

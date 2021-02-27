@@ -2,7 +2,7 @@
 % Please edit documentation in R/impute.R
 \name{impute}
 \alias{impute}
-\title{Function impute}
+\title{Multiple Imputation for NIAID-OS.}
 \usage{
 impute(
   wide,
@@ -22,19 +22,19 @@ impute(
 
 \item{m}{Number of imputations.}
 
-\item{by}{Character vector with column names. Data will be broken up and imputed separately for every combination of values for those columns in the data.}
+\item{by}{Character vector with column names. Data will be broken up and imputed separately for every combination of values for specified columns in the data.}
 
 \item{days}{Names of the columns that contain the score for each day. Columns should be in sequential order.}
 
-\item{bin}{The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.}
+\item{bin}{The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By default all transitions are pooled together.}
 
 \item{Em}{Emission probabilities. Generally the default should not be changed.}
 
 \item{listFormatOut}{Return each imputed dataset in a list or combine into a single dataset.}
 
-\item{tol}{tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.}
+\item{tol}{Tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorithm.}
 
-\item{maxiter}{maximum iterations before stopping the EM algorithm.}
+\item{maxiter}{Maximum iterations before stopping the EM algorithm.}
 
 \item{silent}{Allows silencing some messages.}
 }
@@ -43,14 +43,14 @@ If listFormatOut = TRUE, then a list will be returned with each element being an
 If listFormatOut = FALSE, then a single data.frame will be returned where IMP_ID column is created.
 }
 \description{
-Imputes NIAID OS data using a hidden markov model.
+Imputes NIAID OS data using a Markov model.
 }
 \details{
 States for each patient/day in 'wide' may be the following: 
 \itemize{
  \item{Not missing:}{An integer from 1 to 8.}
  \item{Missing:}{NA}
- \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
+ \item{Partially Missing:}{ Range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
 }
 }
 \examples{

@@ -11,7 +11,7 @@ output:
 This document describes the "user defined validation plan" as described in
 "Develop, Validate, and Execute Code". Thus, it documents the steps to be taken
 to reasonably ensure this package functions according to specifications.
-The function documentation and vignettes serve as the specifications.
+The function documentation serves as the specifications, and details of the formulas and methods may be found in the KHAA SAP. 
 
 
 # Rationale
@@ -37,10 +37,10 @@ The following roles will be involved in validation:
  + Second Progammer: Chaoran Hu
 
 
-# Quick review of methodology
+# Methods overview and important internal functions
 
 The detailed demonstration of multiple imputation with hidden Markov model
-(MI-HMM) can be found in XXX. We briefly review the major steps of
+(MI-HMM) can be found in the KHAA SAP. We briefly review the major steps of
 MI-HMM as the following algorithm.
 
 1. Generate $M$ bootstrap data from original data;
@@ -51,7 +51,7 @@ estimate $\theta_m$, $m=1,...,M$;
 3. Impute (`niaidMI:::.impute_one`) original data with
 $P(missing|obsvered, \theta_m)$ to provide $M$ imputations.
 
-Mention that, the start value for estimation (Baun-Welch algorithm) is
+The start value for estimation (Baun-Welch algorithm) is
 evaluating as empirical transition matrix and initial probability from
 original data.
 
@@ -132,18 +132,13 @@ foo1()
 set.seed(123)
 foo2()
 ```
-Second, in MI-HMM method, `niaidMI:::.impute_one` function will take
+Second, in the MI-HMM method, the `niaidMI:::.impute_one` function will take
 the estimate result from `niaidMI:::.baum_welsh` as input.
-However, as we mentioned before, code author and second programmer's
-estimation function can provide same but still tiny different results.
-However, this tiny difference in estimate will be augmented during
-imputed process. In practice, we are confident this will not induce
-any problem or mistake. According to our simulation result, for the
-same simulated data used in previous section, there is only 6 missing
-values imputed differently per 50 imputations. Reproducible code is
-provided in "niaidMI/inst/validation_code_arxiv" that served as
-support of this statement (second reason).
+However, as previously mentioned, the code author and second programmer's
+estimation function can provide the same results only up to some numerical floating point accuracy.
+However, this tiny numerical difference in estimate will be sufficent to cause a few imputations to differ between the two programs. In practice, we are confident this will not have a meaningful impact. According to our simulation result, for the same simulated data used in previous section using our chosen random seed, only 6 missing values were imputed differently per 50 multiple imputation data sets. Reproducible code is provided in "niaidMI/inst/validation_code_arxiv/test-imp-oldversion.R" that served as support of this statement (second reason).
 
+Finally, we note that the primary implementation of the package was used in a rigorous simulation study demonstrating that its statistical properties including bias and coverage are appropriate.
 
 # Revisions
 

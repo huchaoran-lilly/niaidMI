@@ -2,7 +2,7 @@
 % Please edit documentation in R/bootstrap_param_est.R
 \name{bootstrap_param_est}
 \alias{bootstrap_param_est}
-\title{Function bootstrap_param_est}
+\title{Estimation of Markov model.}
 \usage{
 bootstrap_param_est(
   wide,
@@ -22,13 +22,13 @@ bootstrap_param_est(
 
 \item{days}{Names of the columns that contain the score for each day.}
 
-\item{bin}{The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.}
+\item{bin}{The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By default all transitions are pooled together.}
 
-\item{Em}{Emission probabilities.}
+\item{Em}{Emission probabilities. Default should be used unless user is advanced.}
 
-\item{tol}{tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.}
+\item{tol}{Tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.}
 
-\item{maxiter}{maximum iterations before stopping the EM algorithm.}
+\item{maxiter}{Maximum iterations before stopping the EM algorithm.}
 
 \item{silent}{Allows silencing some messages.}
 }
@@ -44,7 +44,7 @@ A list object with the following components:
 }
 }
 \description{
-Fits a hidden markov model then bootstraps the data and refits the model.
+Fits a Markov model then bootstraps the data and refits the model.
 }
 \details{
 States for each patient/day in 'wide' may be the following: 

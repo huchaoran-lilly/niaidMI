@@ -1,5 +1,5 @@
-#' @title Function get_emission
-#' @description Creates Emission probabilities from data
+#' @title Emission probability evaluation.
+#' @description Creates emission probabilities from data. Generally for internal niaidMI package use only.
 #' @seealso \code{\link{impute}}
 #' @export
 #' @param wide Data in wide format (i.e., each day is a column). 
@@ -9,7 +9,7 @@
 #' \itemize{
 #'  \item{Not missing:}{An integer from 1 to 8.}
 #'  \item{Missing:}{NA}
-#'  \item{Partially Missing:}{ range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
+#'  \item{Partially Missing:}{ Range which may be code as a characters string such as '[1,7]' or '[1,2]'. Such a character string indicates that while the actual value is unknown, it is known that the value falls within the specified range. }
 #' }
 #' Generally the user will not need to call this function directly because it is called by the 'impute' function.
 #

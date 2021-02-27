@@ -1,5 +1,5 @@
-#' @title Simulate data
-#' @description Simulate data for the purpose of testing the pakcage.
+#' @title Simulate data.
+#' @description Simulate data for the purpose of testing the package.
 #' @export
 #' @param n Number of samples. 
 #' @param fit Contains transition and prior parameters.
@@ -8,7 +8,7 @@
 #' @param bin The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.
 #' @param drop_out_rate Parameter for simulating dropout. Rate is per day.
 #' @param sporatic_rate Parameter for simulating missing.
-#' @param miss_not_dead_rate Parameter to control missing but not data rate.
+#' @param miss_not_dead_rate Parameter to control missing but not dead rate.
 #' @details
 #' This simulation function is used to generated data for examples and testing of the package.
 #' 
@@ -95,14 +95,6 @@ sim_data <-
     ret$ID=1:n
     return(ret)
   }
-#test=sim_data(200)
-#.check_bad_transition(test, days=paste0("D",1:28))
-# tmp=4^-abs(outer(1:8,1:8,"-"))
-# tmp[8,]=c(0,0,0,0,0,0,0,1)
-# for(i in 1:10) {
-#   tmp=round(tmp,2)
-#   tmp=tmp/rowSums(tmp)
-# }
-# dput(tmp)
+
 
 

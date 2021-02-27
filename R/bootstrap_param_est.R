@@ -1,14 +1,14 @@
-#' @title Function bootstrap_param_est
-#' @description Fits a hidden markov model then bootstraps the data and refits the model.
+#' @title Estimation of Markov model.
+#' @description Fits a Markov model then bootstraps the data and refits the model.
 #' @seealso \code{\link{impute}}
 #' @export
 #' @param wide Data in wide format (i.e., each day is a column). See details.
 #' @param b Number of bootstrap samples to take.
-#' @param bin The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By defualt all transitions are pooled together.
 #' @param days Names of the columns that contain the score for each day.
-#' @param Em Emission probabilities.
-#' @param tol tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.
-#' @param maxiter maximum iterations before stopping the EM algorithm.
+#' @param bin The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By default all transitions are pooled together.
+#' @param Em Emission probabilities. Default should be used unless user is advanced.
+#' @param tol Tolerance for relative reduction the log-likelihood to determine convergence of the Baum-Welch algorythm.
+#' @param maxiter Maximum iterations before stopping the EM algorithm.
 #' @param silent Allows silencing some messages.
 #' @details
 #' States for each patient/day in 'wide' may be the following: 

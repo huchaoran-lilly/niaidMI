@@ -23,10 +23,8 @@ fit_CH <- BW_CH(dataset_CH[[1]][, -1], dataset_CH[[2]], bin, start_initP, start_
 fit_NM <- bootstrap_param_est(wide=dataset_NM, b=0, bin=bin, tol = 0, silent = TRUE, maxiter = 100000000000)$fit
 
 
-#<<<<--TODO by Chaoran turn this into testthat---->>>>
-fit_CH$llk - fit_NM$logLike_new
 
-
+#Test Results are equal
 test_that("likelihood values are equal between BW and CH",
           {
             expect_equal(fit_CH$llk, fit_NM$logLike_new)
