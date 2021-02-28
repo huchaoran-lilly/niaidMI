@@ -1,7 +1,7 @@
 Package: niaidMI
 Title: Imputes the NIAID OS Scale using a Markov Model
 Version: 1.0
-Date: 2020-11-23
+Date: 2021-02-28
 Author: Nathan Morris[aut, cre],
   Chaoran Hu [aut]
 Maintainer: Nathan Morris <morris_nathan@lilly.com>
