@@ -135,10 +135,19 @@ foo2()
 Second, in the MI-HMM method, the `niaidMI:::.impute_one` function will take
 the estimate result from `niaidMI:::.baum_welsh` as input.
 However, as previously mentioned, the code author and second programmer's
-estimation function can provide the same results only up to some numerical floating point accuracy.
-However, this tiny numerical difference in estimate will be sufficent to cause a few imputations to differ between the two programs. In practice, we are confident this will not have a meaningful impact. According to our simulation result, for the same simulated data used in previous section using our chosen random seed, only 6 missing values were imputed differently per 50 multiple imputation data sets. Reproducible code is provided in "niaidMI/inst/validation_code_arxiv/test-imp-oldversion.R" that served as support of this statement (second reason).
+estimation function can provide the same results only up to some numerical
+floating point accuracy. However, this tiny numerical difference in estimate
+will be sufficent to cause a few imputations to differ between the two programs.
+In practice, we are confident this will not have a meaningful
+impact. According to our simulation result, for the same simulated data used
+in previous section using our chosen random seed, only 0.1\% missing values
+were imputed differently. Reproducible code is provided in
+"niaidMI/inst/validation_code_arxiv/test-imp-explorer.R"
+that served as support of this statement (second reason).
 
-Finally, we note that the primary implementation of the package was used in a rigorous simulation study demonstrating that its statistical properties including bias and coverage are appropriate.
+Finally, we note that the primary implementation of the package was used in
+a rigorous simulation study demonstrating that its statistical properties
+including bias and coverage are appropriate.
 
 # Revisions
 

@@ -9,7 +9,7 @@ README
 * impute_debug.R: Variant of niaidMI::impute with adding debug features,
     such as printing intermediate objects.
       
-* test-imp-oldversion.R: Old version of tests/testthat/test-imp.R.
+* test-imp-explorer.R: This file try to reveal why tiny difference occure between NM and CH's code.
 
 * test_impute_only.R: Prototype of tests/testthat/test-imp.R.
 

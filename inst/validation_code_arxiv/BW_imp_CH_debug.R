@@ -229,7 +229,7 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
     cartNM[[i]] <- dataNM[id, ]
     
     ### for debug purpose ######################################################
-    cat(i, "-", id, "\n")
+    # cat(i, "-", id, "\n")
     ### for debug purpose ######################################################
     
   }
@@ -258,7 +258,7 @@ enc_imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
     result[[i]] <- impute_CH(data, q_func, bin, cart_initP, cart_tP)
     
     ### for debug purpose ######################################################
-    print(fitMC)
+    #print(fitMC)
     print(paste("imputation", i, "is completed"))
     ### for debug purpose ######################################################
   }
@@ -301,9 +301,11 @@ imputeBS_CH <- function(data, q_func, bin, start_initP, start_tP, m,
   by <- data[, by]
   unq_by <- unique(by)
   databy <- vector("list", length(unique(by)))
+  databyNM <- vector("list", length(unique(by)))
   for (i in seq_len(length(unique(by)))) {
     databy[[i]] <- data[by == unq_by[i], -1]
-    cart <- enc_imputeBS_CH(databy[[i]], q_func, bin, start_initP, start_tP, m, tol_llk, fix_const, dataNM)
+    databyNM[[i]] <- dataNM[data[, by] == unq_by[i], ]
+    cart <- enc_imputeBS_CH(databy[[i]], q_func, bin, start_initP, start_tP, m, tol_llk, fix_const, databyNM[[i]])
     for (j in 1:m) {
       result[[j]] <- rbind(result[[j]], cbind(unq_by[i], cart[[j]]))
     }
