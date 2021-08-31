@@ -3,9 +3,9 @@
 \docType{package}
 \name{niaidMI-package}
 \alias{niaidMI-package}
-\title{niaidMI: multiple imputation of the NIAID OS score using a Markov model.}
+\title{niaidMI: Markov Model Multiple Imputation for NIAID OS.}
 \description{
-Performs multiple imputation of the NIAID OS score by using a Markov model.
+The implementation of Markov Model Multiple Imputation with the application to COVID-19 scale, NIAID OS.
 }
 \author{
 \itemize{

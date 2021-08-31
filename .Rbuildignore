@@ -12,7 +12,6 @@
 ^revdep$
 ^test$
 ^COPYRIGHT$
-^LICENSE$
 ^TODO\.org$
 ^cran-comments.md$
 ^README\.md$

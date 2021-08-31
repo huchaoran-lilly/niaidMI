@@ -1,8 +1,8 @@
-#' niaidMI: multiple imputation of the NIAID OS score using a Markov model.
+#' niaidMI: Markov Model Multiple Imputation for NIAID OS.
 #' @docType package
 #' @name niaidMI-package
 #' @useDynLib niaidMI, .registration = TRUE
-#' @description Performs multiple imputation of the NIAID OS score by using a Markov model.
+#' @description The implementation of Markov Model Multiple Imputation with the application to COVID-19 scale, NIAID OS. 
 #' @author
 #' \itemize{
 #'   \item *maintainer, author* Nathan Morris \email{morris_nathan@@lilly.com}
