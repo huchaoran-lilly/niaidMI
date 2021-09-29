@@ -6,7 +6,7 @@ This README would normally document whatever steps are necessary to get this app
 
 * This package provides the implementation of **Multiple Imputation with Markov Chain** in application to a popular COVID-19 scale, **NIAID-OS**.
 
-* Version: 1.0
+* Version: 1.0.0
 
 ### How do I get set up? ###
 
