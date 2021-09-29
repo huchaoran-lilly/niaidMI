@@ -27,7 +27,7 @@ Possibly misspelled words in DESCRIPTION:
 
 Examples with CPU (user + system) or elapsed time > 5s
 
-        user system elapsed
+user system elapsed
 
 impute 5.746   0.03   5.777
 
