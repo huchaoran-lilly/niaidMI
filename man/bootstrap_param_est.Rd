@@ -56,7 +56,7 @@ States for each patient/day in 'wide' may be the following:
 Generally the user will not need to call this function directly because it is called by the 'impute' function.
 }
 \examples{
-test <- sim_data(200)
+test <- sim_data(100)
 bs <- bootstrap_param_est(wide=test,b=2)
 }
 \seealso{

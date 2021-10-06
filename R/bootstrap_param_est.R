@@ -32,7 +32,7 @@
 #' 
 #' 
 #' @examples
-#' test <- sim_data(200)
+#' test <- sim_data(100)
 #' bs <- bootstrap_param_est(wide=test,b=2)
 
 bootstrap_param_est <-

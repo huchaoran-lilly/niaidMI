@@ -54,8 +54,8 @@ States for each patient/day in 'wide' may be the following:
 }
 }
 \examples{
-test <- sim_data(200)
-bs <- impute(wide=test,m=5, by="strata", silent=TRUE)
+test <- sim_data(100)
+bs <- impute(wide=test,m=2, by="strata", silent=TRUE)
 }
 \seealso{
 \code{\link{bootstrap_param_est}}

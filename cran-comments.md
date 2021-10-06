@@ -9,7 +9,7 @@
 ## R CMD check results
 There were no ERRORs, WARNINGs.
 
-There were 2 NOTEs:
+There were 1 NOTEs:
 
 * checking CRAN incoming feasibility ... NOTE
 
@@ -23,13 +23,6 @@ Possibly misspelled words in DESCRIPTION:
   
   NIAID (2:45, 20:43)
   
-* checking examples ... NOTE
-
-Examples with CPU (user + system) or elapsed time > 5s
-
-user system elapsed
-
-impute 5.746   0.03   5.777
 
 
 ## Downstream dependencies

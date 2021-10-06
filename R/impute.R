@@ -25,8 +25,8 @@
 #' 
 #' 
 #' @examples
-#' test <- sim_data(200)
-#' bs <- impute(wide=test,m=5, by="strata", silent=TRUE)
+#' test <- sim_data(100)
+#' bs <- impute(wide=test,m=2, by="strata", silent=TRUE)
 impute <-
   function(wide, m, by=NULL, days=paste0("D",1:28), bin=rep(1,length(days)-1), 
            Em=get_emission(wide, days),
