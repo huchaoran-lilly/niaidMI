@@ -1,5 +1,7 @@
 # README #
 
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/niaidMI)](https://cran.r-project.org/package=niaidMI)
+
 This README would normally document whatever steps are necessary to get this application up and running.
 
 ### What is this R package for? ###
