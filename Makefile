@@ -28,6 +28,14 @@ $(tar): $(objects)
 $(checkLog): $(tar) $(tests)
 	R CMD check --as-cran $(tar)
 
+.PHONY: newVersion
+newVersion:
+	@read -p "new version number: " NEWVER;\
+	sed -i 's/^Version: [0-9]\.[0-9]\.[0-9]\.*[0-9]*[0-9]*[0-9]*[0-9]*/Version: '$$NEWVER'/' DESCRIPTION;\
+	sed -i 's/Version: [0-9]\.[0-9]\.[0-9]\.*[0-9]*[0-9]*[0-9]*[0-9]*/Version: '$$NEWVER'/' README.md
+
+	@echo "NEWS.md and cran-comment should be modified manually."
+
 .PHONY: clean
 clean:
 	rm -rf *~ */*~ *.Rhistroy *.tar.gz *.Rcheck/ .\#* src/*.so src/*.o vignettes/*.html
