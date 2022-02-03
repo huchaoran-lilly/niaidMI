@@ -52,3 +52,19 @@ test_that("test for edge cases: impute part",
                          "m must be >=2.")
           })
  
+dataset_NM$ref=sample(c(TRUE,FALSE), size=nrow(dataset_NM),replace = TRUE)
+test_that("test for edge cases: impute part",
+          {
+            expect_error(impute_ref(dataset_CH, ref="ref", m=100, listFormatOut = TRUE, silent = TRUE),
+                         "wide must be a data.frame.")
+            expect_error(impute_ref(dataset_NM, ref="ref", m=100, listFormatOut = TRUE, silent = TRUE, bin = as.character(bin)),
+                         "bin must be numeric.")
+            expect_error(impute_ref(dataset_NM, ref="ref", m=100, listFormatOut = TRUE, silent = TRUE, bin = as.matrix(bin, ncol = 2)),
+                         "bin must be a vector")
+            expect_error(impute_ref(dataset_NM, ref="ref", m=100, listFormatOut = TRUE, silent = TRUE, bin = rep(1, 30)))
+            expect_error(impute_ref(dataset_NM, ref="ref", m="100", listFormatOut = TRUE, silent = TRUE),
+                         "m must be numeric.")
+            expect_error(impute_ref(dataset_NM, ref="ref", m=c(100, 32), listFormatOut = TRUE, silent = TRUE))
+            expect_error(impute_ref(dataset_NM, ref="ref", m=1, listFormatOut = TRUE, silent = TRUE),
+                         "m must be >=2.")
+          })
