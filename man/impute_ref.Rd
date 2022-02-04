@@ -23,7 +23,7 @@ impute_ref(
 
 \item{m}{Number of imputations.}
 
-\item{ref}{Character vector with 1 column names. Specifies the reference group column. The reference group column must be logical, and there must be some (>=20) members of the reference group in each strata.}
+\item{ref}{Character vector with 1 column names. Specifies the reference group column. The reference group column must be logical, and there must be some (>=15) members of the reference group in each strata.}
 
 \item{by}{Character vector with column names. Data will be broken up and imputed separately for every combination of values for specified columns in the data.}
 
@@ -61,7 +61,7 @@ in the reference group. Second, the imputation for all of the patients in that s
 is performed using the parameters as estimated/simulated based on the patients in the reference group.
 }
 \examples{
-test <- sim_data(100)
+test <- sim_data(300)
 test$PBO=sample(c(TRUE, FALSE), size=nrow(test), replace = TRUE)
 bs <- impute_ref(wide=test,ref="PBO",m=2, by="strata", silent=TRUE)
 }

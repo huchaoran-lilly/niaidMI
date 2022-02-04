@@ -4,7 +4,7 @@
 #' @export
 #' @param wide Data in wide format (i.e., each day is a column). 
 #' @param m Number of imputations.
-#' @param ref Character vector with 1 column names. Specifies the reference group column. The reference group column must be logical, and there must be some (>=20) members of the reference group in each strata.
+#' @param ref Character vector with 1 column names. Specifies the reference group column. The reference group column must be logical, and there must be some (>=15) members of the reference group in each strata.
 #' @param by Character vector with column names. Data will be broken up and imputed separately for every combination of values for specified columns in the data.
 #' @param days Names of the columns that contain the score for each day. Columns should be in sequential order.
 #' @param bin The assigned bin for pooling together information across transitions. Must be a numeric vector of length=(length(days)-1). By default all transitions are pooled together.
@@ -31,7 +31,7 @@
 #' 
 #' 
 #' @examples
-#' test <- sim_data(100)
+#' test <- sim_data(300)
 #' test$PBO=sample(c(TRUE, FALSE), size=nrow(test), replace = TRUE)
 #' bs <- impute_ref(wide=test,ref="PBO",m=2, by="strata", silent=TRUE)
 impute_ref <-
@@ -70,8 +70,8 @@ impute_ref <-
     if( !is.logical(wide[[ref]])) 
       stop("ref must be a logical (i.e. TRUE/FALSE) column in the wide data.frame.")
     reftbl=table(factor(wide[[ref]],levels=c(TRUE,FALSE) ))
-    if( reftbl["TRUE"]<20) 
-      stop("All strata must have >=20 patients in the reference arm.")
+    if( reftbl["TRUE"]<15) 
+      stop("All strata must have >=15 patients in the reference arm.")
     if( reftbl["FALSE"]==0) 
       stop("All patients are in the reference arm for at least one of the strata.")
     
@@ -116,12 +116,13 @@ impute_ref <-
         wide_by=wide[pos,]
         s_by=s[pos]
         Em_by=Em[pos,,]
-        impute(wide=wide_by, bin=bin, m=m, 
-               days=days, Em=Em_by, 
-               listFormatOut=TRUE, 
-               by=NULL, tol=tol,  
-               maxiter=maxiter,
-               silent=silent)
+        impute_ref(wide=wide_by, ref=ref,
+                   bin=bin, m=m, 
+                   days=days, Em=Em_by, 
+                   listFormatOut=TRUE, 
+                   by=NULL, tol=tol,  
+                   maxiter=maxiter,
+                   silent=silent)
       })
       
       ret=list()
