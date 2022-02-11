@@ -1,7 +1,7 @@
 Package: niaidMI
 Title: Markov Model Multiple Imputation for NIAID OS
-Version: 1.0.0.9000
-Date: 2022-02-07
+Version: 1.1.0
+Date: 2022-02-11
 Authors@R: c(
   person(
     family = "Morris",
